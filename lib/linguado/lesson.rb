@@ -3,8 +3,10 @@ module Linguado
     attr_accessor :prompt
     attr_accessor :speaker
     attr_accessor :questions
+    attr_accessor :language
 
-    def initialize(prompt = nil, speaker = nil)
+    def initialize(prompt = nil, speaker = nil, language: 'en-US')
+      @language = language
       @prompt = prompt || TTY::Prompt.new 
       @speaker = speaker || Speaker.new
       @questions = []
@@ -35,7 +37,7 @@ module Linguado
     end
 
     def write sentence
-      @speaker.speak sentence
+      @speaker.speak sentence, language
 
       response = @prompt.ask "Type what you hear"
 

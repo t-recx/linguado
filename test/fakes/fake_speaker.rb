@@ -5,7 +5,7 @@ class FakeSpeaker
     @sentences = []
   end
 
-  def speak sentence
-    @sentences.push sentence
+  def speak sentence, language = nil
+    @sentences.push({ sentence: sentence, language: language })
   end
 end

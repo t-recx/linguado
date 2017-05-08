@@ -7,18 +7,20 @@ module Linguado
       @file = file || File
     end
 
-    def speak sentence, lang = "en-US"
+    def speak sentence, language = "en-US"
       filename = "linguado.wav"
 
-      i, o, e, wt = @open3.popen3 "pico2wave", "--wave=" + filename, "-l=" + lang, sentence
+      return unless execute "pico2wave", "--wave=" + filename, "-l=" + language, sentence
 
-      return unless wt.value.success?
-
-      i, o, e, wt = @open3.popen3 "play", filename
-
-      return unless wt.value.success?
+      return unless execute "play", filename
 
       @file.delete filename if @file.exists? filename
+    end
+
+    def execute *cmd
+      i, o, e, wt = @open3.popen3 *cmd
+
+      wt.value.success?
     end
   end 
 end

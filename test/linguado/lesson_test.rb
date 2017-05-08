@@ -123,7 +123,15 @@ describe Lesson do
     it "should call speaker.speak" do
       subject.write "abc"
 
-      speaker.sentences.first.must_equal "abc"
+      speaker.sentences.first[:sentence].must_equal "abc"
+    end
+
+    it "should pass correct language code from the lesson to speaker" do
+      subject.language = "de-DE"
+
+      subject.write "abc"
+
+      speaker.sentences.first[:language].must_equal "de-DE"
     end
 
     it "should call prompt.ask" do
