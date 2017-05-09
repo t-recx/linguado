@@ -9,7 +9,7 @@ class WordPolicy
 
   def initialize condition: lambda { |word| true }, levenshtein_distance_allowed: 0, exceptions: []
     @condition = condition
-    @levenshtein_distance_allowed = 0
+    @levenshtein_distance_allowed = levenshtein_distance_allowed
     @exceptions = exceptions
   end
 

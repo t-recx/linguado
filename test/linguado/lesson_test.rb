@@ -2,13 +2,19 @@ require 'test_helper'
 require 'linguado'
 require 'fakes/fake_prompt'
 require 'fakes/fake_speaker'
+require 'fakes/fake_word_policy'
+require 'fakes/fake_pastel'
+
 include Linguado
 
 describe Lesson do
   let(:prompt) { FakePrompt.new }
   let(:speaker) { FakeSpeaker.new }
+  let(:pastel) { FakePastel.new }
+  let(:word_policy) { FakeWordPolicy.new }
+  let(:word_policies) { [] }
 
-  subject { Lesson.new prompt, speaker }
+  subject { Lesson.new prompt, speaker, pastel, word_policies: word_policies }
 
   describe :question do
     it "should store question on array" do
@@ -53,9 +59,10 @@ describe Lesson do
     it "should call prompt.ok if translation correct" do
       prompt.setup_answer "hallo", "hello"
 
-      subject.translate "hallo", "hello"
+      return_value = subject.translate "hallo", "hello"
 
       assert_okay!
+      return_value.must_equal true
     end
 
     it "should ignore casing when checking translation" do
@@ -82,9 +89,72 @@ describe Lesson do
     it "should call prompt.error if translation incorrect" do
       prompt.setup_answer "hallo", "goodbye"
 
-      subject.translate "hallo", "hello"
+      return_value = subject.translate "hallo", "hello"
 
       assert_error! "hello"
+      return_value.must_equal false
+    end
+
+    describe "with active policies" do
+      let(:word_policies) { [word_policy] }
+
+      it "should check for policies for all words when answer differs" do
+        answer = "hi I am silly"
+        tokens_answer = answer.downcase.split
+        prompt.setup_answer "hallo ich bin müde", answer
+
+        subject.translate "hallo ich bin müde", "hi I am tired"
+
+        word_policy.passes.count.must_equal tokens_answer.count
+        word_policy.typos.count.must_equal tokens_answer.count
+        word_policy.passes.map { |p| p[:word].downcase }.must_equal tokens_answer
+        word_policy.typos.map { |p| p[:word].downcase }.must_equal tokens_answer
+      end
+
+      it "should point out the typos when answers have them" do
+        word_policy.typos_return[["scik", "sick"]] = true
+        prompt.setup_answer "hallo ich bin krank", "hi I am scik"
+
+        subject.translate "hallo ich bin krank", "hi I am sick"
+
+        prompt.okays.must_include "Almost Correct!"
+        prompt.okays.must_include "hi I am _sick_"
+      end
+
+      it "should be okay if answer has more words than the correct answer" do
+        word_policy.passes_return[["hi", "hi"]] = true
+        word_policy.default_passes_return = false
+        prompt.setup_answer "hallo", "hi two three"
+
+        subject.translate "hallo", "hi"
+
+        assert_error! "hi"
+      end
+    end
+
+    describe "with real world word policies" do
+      let(:ein_word_policy) { WordPolicy.new condition: lambda { |word| word == 'ein' }, exceptions: ['einen', 'eine'], levenshtein_distance_allowed: 0 }
+      let(:general_word_policy) { WordPolicy.new levenshtein_distance_allowed: 2 }
+
+      let(:word_policies) { [ein_word_policy, general_word_policy] }
+
+      it "should fail if ein not spelled correctly" do
+        prompt.setup_answer "Type what you hear", "ich bin eine hund"
+
+        subject.write "ich bin ein hund"
+
+        prompt.errors.must_include "You used the wrong word."
+        prompt.errors.must_include "ich bin _ein_ hund"
+      end
+
+      it "should mark as correct if there are some typos" do
+        prompt.setup_answer "Hi I am alone", "Halo ihc bin Aleine"
+
+        subject.translate "Hi I am alone", "Hallo ich bin Alleine"
+
+        prompt.okays.must_include "Almost Correct!"
+        prompt.okays.must_include "_Hallo_ _ich_ bin _Alleine_"
+      end
     end
   end
 
@@ -105,17 +175,19 @@ describe Lesson do
     it "should call prompt.ok if all correct answers are selected" do
       prompt.setup_answer title, correct
 
-      subject.select title, correct, incorrect
+      return_value = subject.select(title, correct, incorrect)
 
       assert_okay!
+      return_value.must_equal true
     end
 
     it "should call prompt.error if incorrect answers are selected" do
       prompt.setup_answer title, correct + [incorrect.first]
 
-      subject.select title, correct, incorrect
+      return_value = subject.select(title, correct, incorrect)
 
       assert_error! correct
+      return_value.must_equal false
     end
   end
 
@@ -143,17 +215,19 @@ describe Lesson do
     it "should call prompt.ok if correct response" do
       prompt.setup_answer "Type what you hear", "abc"
 
-      subject.write "abc"
+      return_value = subject.write "abc"
 
       assert_okay!
+      return_value.must_equal true
     end
 
     it "should call prompt.error if incorrect response" do
       prompt.setup_answer "Type what you hear", "incorrect"
 
-      subject.write "abc"
+      return_value = subject.write "abc"
 
       assert_error! "abc"
+      return_value.must_equal false
     end
   end
 
