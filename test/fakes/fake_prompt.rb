@@ -2,6 +2,7 @@ class FakePrompt
   attr_accessor :questions
   attr_accessor :okays
   attr_accessor :errors
+  attr_accessor :says
   attr_accessor :answers
   attr_accessor :multi_selections
 
@@ -9,8 +10,13 @@ class FakePrompt
     @questions = []
     @okays = []
     @errors = []
+    @says = []
     @answers = {}
     @multi_selections = []
+  end
+
+  def say sentence
+    says.push sentence
   end
 
   def ask sentence

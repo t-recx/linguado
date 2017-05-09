@@ -4,6 +4,7 @@ require 'fakes/fake_prompt'
 require 'fakes/fake_speaker'
 require 'fakes/fake_word_policy'
 require 'fakes/fake_pastel'
+require 'fakes/fake_thread'
 
 include Linguado
 
@@ -11,10 +12,11 @@ describe Lesson do
   let(:prompt) { FakePrompt.new }
   let(:speaker) { FakeSpeaker.new }
   let(:pastel) { FakePastel.new }
+  let(:thread) { FakeThread }
   let(:word_policy) { FakeWordPolicy.new }
   let(:word_policies) { [] }
 
-  subject { Lesson.new prompt, speaker, pastel, word_policies: word_policies }
+  subject { Lesson.new prompt, speaker, pastel, thread, word_policies: word_policies }
 
   describe :question do
     it "should store question on array" do
@@ -139,7 +141,7 @@ describe Lesson do
       let(:word_policies) { [ein_word_policy, general_word_policy] }
 
       it "should fail if ein not spelled correctly" do
-        prompt.setup_answer "Type what you hear", "ich bin eine hund"
+        prompt.setup_answer ">", "ich bin eine hund"
 
         subject.write "ich bin ein hund"
 
@@ -206,14 +208,20 @@ describe Lesson do
       speaker.sentences.first[:language].must_equal "de-DE"
     end
 
+    it "should call prompt.say" do
+      subject.write "abc"
+
+      prompt.says.first.must_equal "Type what you hear"
+    end
+
     it "should call prompt.ask" do
       subject.write "abc"
 
-      prompt.questions.first.must_equal "Type what you hear"
+      prompt.questions.first.must_equal ">"
     end
 
     it "should call prompt.ok if correct response" do
-      prompt.setup_answer "Type what you hear", "abc"
+      prompt.setup_answer ">", "abc"
 
       return_value = subject.write "abc"
 
@@ -222,7 +230,7 @@ describe Lesson do
     end
 
     it "should call prompt.error if incorrect response" do
-      prompt.setup_answer "Type what you hear", "incorrect"
+      prompt.setup_answer ">", "incorrect"
 
       return_value = subject.write "abc"
 

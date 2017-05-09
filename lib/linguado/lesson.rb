@@ -6,16 +6,18 @@ module Linguado
     attr_accessor :prompt
     attr_accessor :speaker
     attr_accessor :pastel
+    attr_accessor :thread
     attr_accessor :questions
     attr_accessor :language
     attr_accessor :word_policies
 
-    def initialize(prompt = nil, speaker = nil, pastel = nil, language: 'en-US', word_policies: [])
+    def initialize(prompt = nil, speaker = nil, pastel = nil, thread = nil, language: 'en-US', word_policies: [])
       @language = language
       @word_policies = word_policies
       @prompt = prompt || TTY::Prompt.new 
       @speaker = speaker || Speaker.new
       @pastel = pastel || Pastel.new
+      @thread = thread || Thread
       @questions = []
     end
 
@@ -54,9 +56,11 @@ module Linguado
     end
 
     def write sentence
-      @speaker.speak sentence, language
+      @prompt.say "Type what you hear"
 
-      answer = @prompt.ask "Type what you hear"
+      @thread.new { @speaker.speak sentence, language }
+
+      answer = @prompt.ask '>'
 
       correct? answer, sentence
     end
@@ -124,9 +128,13 @@ module Linguado
       return true
     end
 
+    def colorize sentence
+      sentence.split.map { |x| yield(x) }.join(' ')
+    end
+
     def almost_correct! corrected_answer
       @prompt.ok "Almost Correct!"
-      @prompt.ok corrected_answer
+      @prompt.ok colorize(corrected_answer) { |x| @pastel.green x }
 
       return true
     end
@@ -143,7 +151,7 @@ module Linguado
 
     def used_wrong_word corrected_answer
       @prompt.error "You used the wrong word."
-      @prompt.error corrected_answer
+      @prompt.error colorize(corrected_answer) { |x| @pastel.red x }
 
       return false
     end
