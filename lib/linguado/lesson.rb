@@ -55,6 +55,14 @@ module Linguado
       error correct
     end
 
+    def choose title, correct, incorrect
+      answer = @prompt.select title, [correct] + incorrect, enum: ')' 
+
+      return correct! if exact_match answer, correct
+
+      error correct
+    end
+
     def write sentence
       @prompt.say "Type what you hear"
 
@@ -66,6 +74,8 @@ module Linguado
     end
 
     def exact_match answer, *possibilities
+      return false unless answer
+
       possibilities.any? { |possibility| answer.downcase == possibility.downcase }
     end
 

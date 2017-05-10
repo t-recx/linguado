@@ -160,6 +160,39 @@ describe Lesson do
     end
   end
 
+  describe :choose do
+    let(:title) { "___ katze ist nett" }
+    let(:correct) { "die" }
+    let(:incorrect) { ["das", "der"] }
+
+    it "should call prompt.select" do
+      subject.choose title, correct, incorrect
+
+      selection = prompt.selections.first
+      selection[:title].must_equal title
+      selection[:choices].must_equal [correct] + incorrect
+      selection[:options][:enum].must_equal ')'
+    end
+
+    it "should call prompt.ok if answer correct" do
+      prompt.setup_answer title, correct
+
+      return_value = subject.choose title, correct, incorrect
+
+      assert_okay!
+      return_value.must_equal true
+    end
+
+    it "should call prompt.error if incorrect answers are selected" do
+      prompt.setup_answer title, incorrect.shuffle.first
+
+      return_value = subject.choose(title, correct, incorrect)
+
+      assert_error! correct
+      return_value.must_equal false
+    end
+  end
+
   describe :select do
     let(:title) { "The bread is good" }
     let(:correct) { ["Die Brot ist gut", "Brot ist gut"] }
