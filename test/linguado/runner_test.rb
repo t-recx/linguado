@@ -29,19 +29,15 @@ describe Runner do
 
   describe :run do
     it "should create a progress bar" do
-      subject.run questions, 10
+      n = rand(10)
+
+      subject.run questions, n
       
       subject.progress_bar.must_be_instance_of FakeProgressBar
       subject.progress_bar.format.must_equal '[:bar]'
-      subject.progress_bar.options[:total].must_equal 10
+      subject.progress_bar.options[:total].must_equal n
       subject.progress_bar.options[:width].must_equal width
       subject.progress_bar.options[:complete].must_equal 'G'
-    end
-
-    it "should call progress_bar.advance with 0 to show progress bar" do
-      subject.run [lambda { true }], 5
-
-      subject.progress_bar.advance_stack.count { |x| x == 0 }.must_equal 5
     end
 
     it "should be alright if no questions are supplied" do
@@ -67,7 +63,7 @@ describe Runner do
 
       subject.run questions, 4
       
-      4.times do 
+      5.times do 
         kernel.prints.pop.must_equal move_to
         kernel.prints.pop.must_equal clear_screen
       end
@@ -102,6 +98,14 @@ describe Runner do
       subject.run questions, 10
 
       10.times { |i| kernel.puts_array[i].must_equal "Question #{i + 1}" }
+    end
+
+    it "should call gets after every question" do
+      questions.push get_question
+
+      subject.run questions, 10
+
+      kernel.gets_calls.must_equal 10 
     end
   end
 

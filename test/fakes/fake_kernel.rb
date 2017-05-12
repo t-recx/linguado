@@ -1,10 +1,12 @@
 class FakeKernel
   attr_accessor :prints
   attr_accessor :puts_array
+  attr_accessor :gets_calls
 
   def initialize
     @prints = []
     @puts_array = []
+    @gets_calls = 0
   end
 
   def print s
@@ -13,5 +15,9 @@ class FakeKernel
 
   def puts s
     @puts_array.push s
+  end
+
+  def gets
+    @gets_calls += 1
   end
 end
