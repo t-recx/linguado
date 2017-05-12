@@ -25,10 +25,6 @@ module Linguado
       @questions.push block
     end
 
-    def run
-      @questions.shuffle.map(&:call)
-    end
-
     def translate sentence, *correct_answers
       response = @prompt.ask sentence
 

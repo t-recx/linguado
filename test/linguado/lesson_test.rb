@@ -28,29 +28,6 @@ describe Lesson do
     end
   end
 
-  describe :run do
-    it "should call all questions" do
-      subject.question { subject.translate "abc", "abc" }
-      subject.question { subject.translate "xyz", "xyz" }
-
-      subject.run
-
-      prompt.questions.must_include "abc"
-      prompt.questions.must_include "xyz"
-      prompt.questions.count.must_equal 2
-    end
-
-    it "should shuffle question array" do
-      mock_questions = Minitest::Mock.new
-      mock_questions.expect :shuffle, []
-      subject.questions = mock_questions
-
-      subject.run
-
-      mock_questions.verify
-    end
-  end
-
   describe :translate do
     it "should call prompt.ask" do
       subject.translate "test", "test"
