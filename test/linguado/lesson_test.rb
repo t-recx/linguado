@@ -267,6 +267,20 @@ describe Lesson do
     end
   end
 
+  describe :correct? do
+    it "should ignore punctuation" do
+      subject.correct?('the,    cat! is so. tired 123?', 'the cat is so tired 123').must_equal true
+      subject.correct?('dIE KaTze ist sehr müde 123', 'die, katze! ist sehr. müde    123?').must_equal true
+    end
+  end
+
+  describe :prepare do
+    it "should keep diacritics and friends" do
+      characters = "äëïöüß'"
+      subject.prepare(characters).must_equal characters
+    end
+  end
+
   def assert_okay! text = "Correct!"
     prompt.okays.must_include text
   end

@@ -36,9 +36,9 @@ module Linguado
           
           @kernel.gets
 
-          unless difference == -1 and delta_answers == 0 then 
-            delta_answers += difference
-          end
+          difference = 0 if difference == -1 and delta_answers <= 0
+
+          delta_answers += difference
 
           questions_asked += 1
 

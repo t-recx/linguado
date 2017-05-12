@@ -81,13 +81,17 @@ module Linguado
     def exact_match answer, *possibilities
       return false unless answer
 
-      possibilities.any? { |possibility| answer.downcase == possibility.downcase }
+      possibilities.any? { |possibility| prepare(answer) == prepare(possibility) }
+    end
+
+    def prepare s
+      s.downcase.gsub(/[^\p{ALPHA}\w\s\"'"]/, ' ').split.join(' ')
     end
 
     def correct? answer, *possibilities
       return false unless answer
 
-      answer = answer.downcase
+      answer = prepare(answer)
 
       return correct! if exact_match answer, *possibilities
 

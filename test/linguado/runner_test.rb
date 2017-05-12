@@ -107,6 +107,15 @@ describe Runner do
 
       kernel.gets_calls.must_equal 10 
     end
+
+    it "should not be advancing the progress bar into negative territory when delta already 0 or less" do
+      questions.push get_question with_failures: 10
+
+      subject.run questions, 10
+
+      subject.progress_bar.advance_stack.count { |x| x == -1 }.must_equal 0
+      subject.progress_bar.advance_stack.count { |x| x == 1 }.must_equal 10
+    end
   end
 
   def get_question with_failures: 0, after_being_called: 0, &block
