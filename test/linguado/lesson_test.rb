@@ -29,14 +29,20 @@ describe Lesson do
   end
 
   describe :translate do
+    it "should call prompt.say" do
+      subject.translate "a", "b"
+
+      prompt.says.must_equal ['Translate this text', 'a']
+    end
+
     it "should call prompt.ask" do
       subject.translate "test", "test"
 
-      prompt.questions.must_include "test"
+      prompt.questions.must_include ">"
     end
 
     it "should call prompt.ok if translation correct" do
-      prompt.setup_answer "hallo", "hello"
+      prompt.setup_answer ">", "hello"
 
       return_value = subject.translate "hallo", "hello"
 
@@ -45,7 +51,7 @@ describe Lesson do
     end
 
     it "should ignore casing when checking translation" do
-      prompt.setup_answer "hallo", "heLlO"
+      prompt.setup_answer ">", "heLlO"
 
       subject.translate "hallo", "hello", "hi"
 
@@ -53,12 +59,12 @@ describe Lesson do
     end
 
     it "should accept any of the proposed translations" do
-      prompt.setup_answer "hallo", "hi"
+      prompt.setup_answer ">", "hi"
 
       subject.translate "hallo", "hello", "hi"
 
       prompt.answers.clear
-      prompt.setup_answer "hallo", "hello"
+      prompt.setup_answer ">", "hello"
 
       subject.translate "hallo", "hello", "hi"
 
@@ -66,7 +72,7 @@ describe Lesson do
     end
 
     it "should call prompt.error if translation incorrect" do
-      prompt.setup_answer "hallo", "goodbye"
+      prompt.setup_answer ">", "goodbye"
 
       return_value = subject.translate "hallo", "hello"
 
@@ -80,7 +86,7 @@ describe Lesson do
       it "should check for policies for all words when answer differs" do
         answer = "hi I am silly"
         tokens_answer = answer.downcase.split
-        prompt.setup_answer "hallo ich bin müde", answer
+        prompt.setup_answer ">", answer
 
         subject.translate "hallo ich bin müde", "hi I am tired"
 
@@ -92,7 +98,7 @@ describe Lesson do
 
       it "should point out the typos when answers have them" do
         word_policy.typos_return[["scik", "sick"]] = true
-        prompt.setup_answer "hallo ich bin krank", "hi I am scik"
+        prompt.setup_answer ">", "hi I am scik"
 
         subject.translate "hallo ich bin krank", "hi I am sick"
 
@@ -103,7 +109,7 @@ describe Lesson do
       it "should be okay if answer has more words than the correct answer" do
         word_policy.passes_return[["hi", "hi"]] = true
         word_policy.default_passes_return = false
-        prompt.setup_answer "hallo", "hi two three"
+        prompt.setup_answer ">", "hi two three"
 
         subject.translate "hallo", "hi"
 
@@ -127,7 +133,7 @@ describe Lesson do
       end
 
       it "should mark as correct if there are some typos" do
-        prompt.setup_answer "Hi I am alone", "Halo ihc bin Aleine"
+        prompt.setup_answer ">", "Halo ihc bin Aleine"
 
         subject.translate "Hi I am alone", "Hallo ich bin Alleine"
 
@@ -142,17 +148,23 @@ describe Lesson do
     let(:correct) { "die" }
     let(:incorrect) { ["das", "der"] }
 
+    it "should call prompt.say" do
+      subject.choose title, correct, incorrect
+
+      prompt.says.must_equal ["Choose the correct option", title]
+    end
+
     it "should call prompt.select" do
       subject.choose title, correct, incorrect
 
       selection = prompt.selections.first
-      selection[:title].must_equal title
+      selection[:title].must_equal '>'
       selection[:choices].must_equal [correct] + incorrect
       selection[:options][:enum].must_equal ')'
     end
 
     it "should call prompt.ok if answer correct" do
-      prompt.setup_answer title, correct
+      prompt.setup_answer '>', correct
 
       return_value = subject.choose title, correct, incorrect
 
@@ -161,7 +173,7 @@ describe Lesson do
     end
 
     it "should call prompt.error if incorrect answers are selected" do
-      prompt.setup_answer title, incorrect.shuffle.first
+      prompt.setup_answer '>', incorrect.shuffle.first
 
       return_value = subject.choose(title, correct, incorrect)
 
@@ -175,17 +187,23 @@ describe Lesson do
     let(:correct) { ["Die Brot ist gut", "Brot ist gut"] }
     let(:incorrect) { ["Die Brot ist müde"] }
 
+    it "should call prompt.say" do
+      subject.select title, correct, incorrect
+
+      prompt.says.must_equal ["Select all correct translations", title]
+    end
+
     it "should call prompt.multi_select" do
       subject.select title, correct, incorrect
 
       selection = prompt.multi_selections.first
-      selection[:title].must_equal title
+      selection[:title].must_equal '>'
       selection[:choices].must_equal correct + incorrect
       selection[:options][:enum].must_equal ")"
     end
 
     it "should call prompt.ok if all correct answers are selected" do
-      prompt.setup_answer title, correct
+      prompt.setup_answer '>', correct
 
       return_value = subject.select(title, correct, incorrect)
 
@@ -194,7 +212,7 @@ describe Lesson do
     end
 
     it "should call prompt.error if incorrect answers are selected" do
-      prompt.setup_answer title, correct + [incorrect.first]
+      prompt.setup_answer '>', correct + [incorrect.first]
 
       return_value = subject.select(title, correct, incorrect)
 

@@ -26,7 +26,10 @@ module Linguado
     end
 
     def translate sentence, *correct_answers
-      response = @prompt.ask sentence
+      @prompt.say 'Translate this text'
+      @prompt.say sentence
+
+      response = @prompt.ask '>'
 
       correct? response, *correct_answers
     end
@@ -44,7 +47,10 @@ module Linguado
     end
 
     def select title, correct = [], incorrect = []
-      answers = @prompt.multi_select title, correct + incorrect, enum: ')'
+      @prompt.say "Select all correct translations"
+      @prompt.say title
+
+      answers = @prompt.multi_select '>', correct + incorrect, enum: ')'
 
       return correct! if all_selected(answers, correct) and none_selected(answers, incorrect)
 
@@ -52,7 +58,10 @@ module Linguado
     end
 
     def choose title, correct, incorrect
-      answer = @prompt.select title, [correct] + incorrect, enum: ')' 
+      @prompt.say "Choose the correct option"
+      @prompt.say title
+
+      answer = @prompt.select '>', [correct] + incorrect, enum: ')' 
 
       return correct! if exact_match answer, correct
 
