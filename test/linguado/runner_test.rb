@@ -27,11 +27,11 @@ describe Runner do
 
   subject { Runner.new kernel, progress_bar_module, screen, pastel }
 
-  describe :run do
+  describe :ask do
     it "should create a progress bar" do
       n = rand(10)
 
-      subject.run questions, n
+      subject.ask questions, n
       
       subject.progress_bar.must_be_instance_of FakeProgressBar
       subject.progress_bar.format.must_equal '[:bar]'
@@ -41,17 +41,17 @@ describe Runner do
     end
 
     it "should be alright if no questions are supplied" do
-      subject.run []
-      subject.run nil
+      subject.ask []
+      subject.ask nil
     end
 
-    it "should run all questions repeatedly until delta answers reached" do
+    it "should ask all questions repeatedly until delta answers reached" do
       question_a_called = question_b_called = question_c_called = 0
       questions.push get_question { question_a_called += 1 }
       questions.push get_question { question_b_called += 1 }
       questions.push get_question { question_c_called += 1 }
 
-      subject.run questions, 9
+      subject.ask questions, 9
 
       question_a_called.must_equal 3
       question_b_called.must_equal 3
@@ -59,9 +59,9 @@ describe Runner do
     end
 
     it "after each question should clear screen and reposition cursor" do
-      questions.push lambda { true }
+      questions.push get_question
 
-      subject.run questions, 4
+      subject.ask questions, 4
       
       5.times do 
         kernel.prints.pop.must_equal move_to
@@ -74,7 +74,7 @@ describe Runner do
     it "after each question should update progress bar" do
       questions.push get_question with_failures: 2, after_being_called: 2
 
-      subject.run questions, 4
+      subject.ask questions, 4
 
       subject.progress_bar.advance_stack.count { |x| x == 1 }.must_equal 6
       subject.progress_bar.advance_stack.count { |x| x == -1 }.must_equal 2
@@ -83,19 +83,19 @@ describe Runner do
     it "should keep asking question until the sum of correct and incorrect answers equals passed parameter" do
       questions.push get_question with_failures: 2, after_being_called: 4 
 
-      subject.run(questions, 10).must_equal 14
+      subject.ask(questions, 10).must_equal 14
     end
 
     it "correct answer count should never drop into negative territory" do
       questions.push get_question with_failures: 2
 
-      subject.run(questions, 10).must_equal 12
+      subject.ask(questions, 10).must_equal 12
     end
 
     it "should show question header before each question" do
       questions.push get_question
 
-      subject.run questions, 10
+      subject.ask questions, 10
 
       10.times { |i| kernel.puts_array[i].must_equal "Question #{i + 1}" }
     end
@@ -103,7 +103,7 @@ describe Runner do
     it "should call gets after every question" do
       questions.push get_question
 
-      subject.run questions, 10
+      subject.ask questions, 10
 
       kernel.gets_calls.must_equal 10 
     end
@@ -111,7 +111,7 @@ describe Runner do
     it "should not be advancing the progress bar into negative territory when delta already 0 or less" do
       questions.push get_question with_failures: 10
 
-      subject.run questions, 10
+      subject.ask questions, 10
 
       subject.progress_bar.advance_stack.count { |x| x == -1 }.must_equal 0
       subject.progress_bar.advance_stack.count { |x| x == 1 }.must_equal 10
@@ -119,9 +119,10 @@ describe Runner do
   end
 
   def get_question with_failures: 0, after_being_called: 0, &block
+    q = {}
     times_called = 0
 
-    lambda do
+    q[:question] = lambda do
       times_called += 1
       block.call if block
 
@@ -132,6 +133,8 @@ describe Runner do
       end
       
       return true
-    end
+    end 
+
+    q
   end
 end

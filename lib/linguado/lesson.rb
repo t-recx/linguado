@@ -21,8 +21,20 @@ module Linguado
       @questions = []
     end
 
-    def question &block
-      @questions.push block
+    def ask_to opts = {}
+      opts[:question] = get_question_call opts
+
+      @questions.push opts
+    end
+
+    def get_question_call opts
+      opts[:answer] = opts[:answers] if opts.keys.include? :answers
+      opts[:answers] = opts[:answer] if opts.keys.include? :answer
+
+      return lambda { write opts[:write] } if opts.keys.include? :write
+      return lambda { choose opts[:choose], opts[:answer], opts[:wrong] } if opts.keys.include? :choose 
+      return lambda { translate opts[:translate], *opts[:answers] } if opts.keys.include? :translate
+      return lambda { select opts[:select], opts[:answers], opts[:wrong] } if opts.keys.include? :select
     end
 
     def translate sentence, *correct_answers

@@ -18,16 +18,6 @@ describe Lesson do
 
   subject { Lesson.new prompt, speaker, pastel, thread, word_policies: word_policies }
 
-  describe :question do
-    it "should store question on array" do
-      q = Proc.new { }
-
-      subject.question &q
-
-      subject.questions.must_include q
-    end
-  end
-
   describe :translate do
     it "should call prompt.say" do
       subject.translate "a", "b"
@@ -271,6 +261,70 @@ describe Lesson do
     it "should ignore punctuation" do
       subject.correct?('the,    cat! is so. tired 123?', 'the cat is so tired 123').must_equal true
       subject.correct?('dIE KaTze ist sehr müde 123', 'die, katze! ist sehr. müde    123?').must_equal true
+    end
+  end
+
+  describe :ask_to do
+    before do
+      def subject.write_called; @write_called; end;
+      def subject.choose_called; @choose_called; end;
+      def subject.translate_called; @translate_called; end;
+      def subject.select_called; @select_called; end;
+    end
+
+    it "should store hash values on question array" do
+      subject.ask_to write: 'hallo'
+      subject.ask_to choose: 'abc', answer: 'xx', incorrect: 'yy'
+
+      subject.questions.count.must_equal 2
+      subject.questions.find { |x| x[:write] == 'hallo' }.wont_be_nil
+      subject.questions.find { |x| x[:choose] == 'abc' and x[:answer] == 'xx' and x[:incorrect] == 'yy' }.wont_be_nil
+    end
+
+    it "should create closure for write" do
+      def subject.write s; @write_called = true if s == 'hallo'; end;
+
+      subject.ask_to write: 'hallo'
+      subject.questions.first[:question].call
+
+      subject.write_called.must_equal true 
+    end
+
+    it "should create closure for choose" do
+      def subject.choose a, b, c; @choose_called = true if a == :a and b == :b and c == :c; end;
+
+      subject.ask_to choose: :a, answer: :b, wrong: :c
+      subject.questions.first[:question].call
+
+      subject.choose_called.must_equal true
+    end
+
+    it "should create closure for translate" do
+      def subject.translate a, *answers; @translate_called = true if a == :a and answers == ['b', 'c']; end;
+
+      subject.ask_to translate: :a, answers: ['b', 'c']
+      subject.questions.first[:question].call
+
+      subject.translate_called.must_equal true
+    end
+
+    it "should create closure for select" do
+      def subject.select t, c, i; @select_called = true if t == :t and c == [:a, :b] and i == [:c]; end;
+
+      subject.ask_to select: :t, answers: [:a, :b], wrong: [:c]
+      subject.questions.first[:question].call
+
+      subject.select_called.must_equal true
+    end
+
+    it "should be totally okay if you supply answer instead of answers" do
+      answers = ['b', 'c']
+      def subject.translate a, *answers; @translate_called = true if a == :a and answers == ['b', 'c']; end;
+
+      subject.ask_to translate: :a, answer: answers
+      subject.questions.first[:question].call
+
+      subject.translate_called.must_equal true
     end
   end
 

@@ -16,7 +16,7 @@ module Linguado
       @progress_bar = nil
     end
 
-    def run questions, delta_answers_required = 20
+    def ask questions, delta_answers_required = 20
       @progress_bar = @progress_bar_module.new "[:bar]", total: delta_answers_required, width: @screen.width, complete: @pastel.on_green(' ')
 
       delta_answers = 0
@@ -31,7 +31,7 @@ module Linguado
 
           shuffled_questions = questions.shuffle if shuffled_questions.empty?
 
-          correct = shuffled_questions.pop.call 
+          correct = shuffled_questions.pop[:question].call 
           difference = (correct ? 1 : -1)
           
           @kernel.gets
