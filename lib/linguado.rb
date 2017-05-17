@@ -15,6 +15,10 @@ Sequel::Model.plugin :timestamps
 require "linguado/database/models/course"
 require "linguado/database/models/word"
 require "linguado/database/models/word_exercise"
+require "linguado/database/models/question"
+require "linguado/database/models/question_exercise"
+require "linguado/database/models/lesson"
+require "linguado/database/models/lesson_exercise"
 require "linguado/recorder"
 
 module Linguado
