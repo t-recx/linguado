@@ -5,6 +5,7 @@ require 'fakes/fake_speaker'
 require 'fakes/fake_word_policy'
 require 'fakes/fake_pastel'
 require 'fakes/fake_thread'
+require 'fakes/fake_recorder'
 
 include Linguado
 
@@ -13,10 +14,13 @@ describe Lesson do
   let(:speaker) { FakeSpeaker.new }
   let(:pastel) { FakePastel.new }
   let(:thread) { FakeThread }
+  let(:recorder) { FakeRecorder.new }
+  let(:course_name) { "German" }
+  let(:general_word_policy) { WordPolicy.new levenshtein_distance_allowed: 2 }
   let(:word_policy) { FakeWordPolicy.new }
   let(:word_policies) { [] }
 
-  subject { Lesson.new prompt, speaker, pastel, thread, word_policies: word_policies }
+  subject { Lesson.new prompt, speaker, pastel, thread, recorder, word_policies: word_policies, course_name: course_name }
 
   describe :translate do
     it "should call prompt.say" do
@@ -109,7 +113,6 @@ describe Lesson do
 
     describe "with real world word policies" do
       let(:ein_word_policy) { WordPolicy.new condition: lambda { |word| word == 'ein' }, exceptions: ['einen', 'eine'], levenshtein_distance_allowed: 0 }
-      let(:general_word_policy) { WordPolicy.new levenshtein_distance_allowed: 2 }
 
       let(:word_policies) { [ein_word_policy, general_word_policy] }
 
@@ -262,6 +265,42 @@ describe Lesson do
       subject.correct?('the,    cat! is so. tired 123?', 'the cat is so tired 123').must_equal true
       subject.correct?('dIE KaTze ist sehr müde 123', 'die, katze! ist sehr. müde    123?').must_equal true
     end
+
+    describe "with active policies" do
+      let(:word_policies) { [general_word_policy] }
+
+      it "should accept answer from one of the possibilities" do
+        subject.correct?('abc def gih', 'xxx xxx xxx', 'yyy yyy yyy', 'abc def ghi').must_equal true
+      end
+
+      it "should record words when wrong words used" do
+        subject.correct? "die kotze exaist sehr noodle", "die katze ist sehr müde"
+
+        recorder.word_exercises_recorded.count.must_equal 5
+        assert_word_exercises_recording 'die', nil, true
+        assert_word_exercises_recording 'katze', nil, true
+        assert_word_exercises_recording 'ist', 'exaist', false
+        assert_word_exercises_recording 'sehr', nil, true
+        assert_word_exercises_recording 'müde', 'noodle', false
+      end
+
+      it "should record words when typos are present" do
+        subject.correct? "abc edf", "abc def"
+
+        recorder.word_exercises_recorded.count.must_equal 2
+        assert_word_exercises_recording 'abc', nil, true
+        assert_word_exercises_recording 'def', nil, true
+      end
+
+      it "should record words when everything is correct" do
+        subject.correct? "abc def ghi", "das der cba", "abc def ghi", "xij fdk dkj"
+
+        recorder.word_exercises_recorded.count.must_equal 3 
+        assert_word_exercises_recording 'abc', nil, true
+        assert_word_exercises_recording 'def', nil, true
+        assert_word_exercises_recording 'ghi', nil, true
+      end
+    end
   end
 
   describe :ask_to do
@@ -344,5 +383,10 @@ describe Lesson do
     header += "s" if solutions.length > 1
 
     prompt.errors.first.must_equal "#{header}:\n#{solutions.join(", ")}"
+  end
+
+  def assert_word_exercises_recording aw, wu, c 
+    cn = course_name
+    recorder.word_exercises_recorded.any?{ |x| x[:course] == cn and x[:word] == aw and x[:word_used] == wu and x[:correct] == c }.must_equal true
   end
 end

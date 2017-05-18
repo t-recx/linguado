@@ -15,16 +15,16 @@ class FakeRecorder
     @lesson_exercises = {}
   end
 
-  def record_word_exercise course_name, actual_word, word_used, correct
-    @word_exercises_recorded.push { course: course_name, word: actual_word, word_used: word_used, correct: correct }
+  def record_word_exercise course_name, actual_word, word_used = nil, correct = true
+    @word_exercises_recorded.push({ course: course_name, word: actual_word, word_used: word_used, correct: correct })
   end
 
   def record_question_exercise course_name, type, question_description, answer, correct
-    @question_exercises_recorded.push { course: course_name, type: type, question: question_description, answer: answer, correct: correct }
+    @question_exercises_recorded.push({ course: course_name, type: type, question: question_description, answer: answer, correct: correct })
   end
 
   def record_lesson_exercise course_name, lesson_name, questions_asked, correct_answers
-    @lesson_exercises_recorded.push { course: course_name, lesson: lesson_name, questions: questions_asked, correct_answers: correct_answers }
+    @lesson_exercises_recorded.push({ course: course_name, lesson: lesson_name, questions: questions_asked, correct_answers: correct_answers })
   end
 
   def get_lesson_exercises course_name, lesson_name
@@ -50,5 +50,4 @@ class FakeRecorder
 
   def get_lesson course_id, lesson_name
   end
-end
 end

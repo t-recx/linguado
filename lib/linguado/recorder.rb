@@ -3,7 +3,7 @@ include Linguado::Database::Models
 
 module Linguado
   class Recorder
-    def record_word_exercise course_name, actual_word, word_used, correct
+    def record_word_exercise course_name, actual_word, word_used = nil, correct = true
       course = get_course course_name
 
       word = get_word course.pk, actual_word

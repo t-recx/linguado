@@ -7,18 +7,22 @@ module Linguado
     attr_accessor :speaker
     attr_accessor :pastel
     attr_accessor :thread
+    attr_accessor :recorder
     attr_accessor :questions
     attr_accessor :language
     attr_accessor :word_policies
+    attr_accessor :course_name
 
-    def initialize(prompt = nil, speaker = nil, pastel = nil, thread = nil, language: 'en-US', word_policies: [])
+    def initialize(prompt = nil, speaker = nil, pastel = nil, thread = nil, recorder = nil, language: 'en-US', word_policies: [], course_name: nil)
       @language = language
       @word_policies = word_policies
       @prompt = prompt || TTY::Prompt.new 
       @speaker = speaker || Speaker.new
       @pastel = pastel || Pastel.new
       @thread = thread || Thread
+      @recorder = recorder || Recorder.new
       @questions = []
+      @course_name = course_name
     end
 
     def ask_to opts = {}
@@ -105,12 +109,19 @@ module Linguado
 
       answer = prepare(answer)
 
-      return correct! if exact_match answer, *possibilities
+      return correct!(answer) if exact_match answer, *possibilities 
 
       if word_policies and word_policies.count > 0 then
         tokens_answer = answer.split
+        used_wrong_words = false
+        correct_words = []
+        wrong_words = []
+        corrected_answer = ""
 
         possibilities.each do |possibility|
+          correct_words = []
+          wrong_words = []
+
           corrected_answer = ""
           used_wrong_words = false
           passed_policies = true
@@ -131,6 +142,7 @@ module Linguado
             unless word_passed_policies
               used_wrong_words = true
               corrected_answer += "#{@pastel.underline(token_possibility)} "
+              wrong_words.push([token_possibility, token])
             else
               typo = word_policies.any? { |policy| policy.typo? token, tokens_possibility[i] }
 
@@ -139,21 +151,35 @@ module Linguado
               else
                 corrected_answer += "#{token_possibility} "
               end
+
+              correct_words.push token_possibility
             end
           end
 
           corrected_answer.strip!
           
-          return almost_correct!(corrected_answer) if passed_policies 
-          
-          return used_wrong_word(corrected_answer) if used_wrong_words 
+          if passed_policies then
+            record_correct correct_words
+
+            return almost_correct!(corrected_answer) 
+          end
+        end
+
+        if used_wrong_words then
+          record_correct correct_words
+
+          record_wrong wrong_words
+
+          return used_wrong_word(corrected_answer) 
         end
       end
 
       error possibilities.first
     end
 
-    def correct! 
+    def correct! answer = nil
+      record_correct(answer.split) if answer
+
       @prompt.ok "Correct!"
 
       return true
@@ -186,5 +212,14 @@ module Linguado
 
       return false
     end
+
+    def record_correct words
+      words.map { |word| recorder.record_word_exercise course_name, word }
+    end
+
+    def record_wrong words
+      words.map { |word, wrong_word| recorder.record_word_exercise course_name, word, wrong_word, false }
+    end
+
   end
 end
