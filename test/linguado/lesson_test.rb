@@ -156,22 +156,46 @@ describe Lesson do
       selection[:options][:enum].must_equal ')'
     end
 
-    it "should call prompt.ok if answer correct" do
-      prompt.setup_answer '>', correct
+    describe "when correct answer selected" do
+      before do
+        prompt.setup_answer '>', correct
+      end
 
-      return_value = subject.choose title, correct, incorrect
+      it "should call prompt.ok" do
+        return_value = subject.choose title, correct, incorrect
 
-      assert_okay!
-      return_value.must_equal true
+        assert_okay!
+        return_value.must_equal true
+      end
+
+      it "should record correct answer" do
+        subject.choose title, correct, incorrect
+
+        recorder.word_exercises_recorded.count.must_equal 1
+        assert_word_exercises_recording 'die', nil, true
+      end
     end
 
-    it "should call prompt.error if incorrect answers are selected" do
-      prompt.setup_answer '>', incorrect.shuffle.first
+    describe "when wrong answer selected" do
+      let(:selected_answer) { incorrect.shuffle.first }
 
-      return_value = subject.choose(title, correct, incorrect)
+      before do
+        prompt.setup_answer '>', selected_answer
+      end
 
-      assert_error! correct
-      return_value.must_equal false
+      it "should call prompt.error" do
+        return_value = subject.choose(title, correct, incorrect)
+
+        assert_error! correct
+        return_value.must_equal false
+      end
+
+      it "should record wrong answer" do
+        subject.choose(title, correct, incorrect)
+
+        recorder.word_exercises_recorded.count.must_equal 1
+        assert_word_exercises_recording correct, selected_answer, false
+      end
     end
   end
 

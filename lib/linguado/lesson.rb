@@ -79,7 +79,9 @@ module Linguado
 
       answer = @prompt.select '>', [correct] + incorrect, enum: ')' 
 
-      return correct! if exact_match answer, correct
+      return correct!(answer) if exact_match answer, correct
+
+      record_wrong_choice answer, correct
 
       error correct
     end
@@ -119,8 +121,8 @@ module Linguado
         corrected_answer = ""
 
         possibilities.each do |possibility|
-          correct_words = []
-          wrong_words = []
+          correct_words.clear
+          wrong_words.clear
 
           corrected_answer = ""
           used_wrong_words = false
@@ -157,7 +159,7 @@ module Linguado
           end
 
           corrected_answer.strip!
-          
+
           if passed_policies then
             record_correct correct_words
 
@@ -166,9 +168,7 @@ module Linguado
         end
 
         if used_wrong_words then
-          record_correct correct_words
-
-          record_wrong wrong_words
+          record correct_words, wrong_words
 
           return used_wrong_word(corrected_answer) 
         end
@@ -221,5 +221,20 @@ module Linguado
       words.map { |word, wrong_word| recorder.record_word_exercise course_name, word, wrong_word, false }
     end
 
+    def record_wrong_choice answer, correct
+      return unless answer
+
+      wrong_words = []
+      answer.split.each_with_index do |word, i|
+        wrong_words.push [correct.split[i], word]
+      end
+
+      record_wrong wrong_words
+    end
+
+    def record correct_words, wrong_words
+      record_correct correct_words
+      record_wrong wrong_words
+    end
   end
 end
