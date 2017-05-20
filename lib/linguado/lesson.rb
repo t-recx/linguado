@@ -11,9 +11,9 @@ module Linguado
     attr_accessor :questions
     attr_accessor :language
     attr_accessor :word_policies
-    attr_accessor :course_name
+    attr_accessor :course
 
-    def initialize(prompt = nil, speaker = nil, pastel = nil, thread = nil, recorder = nil, language: 'en-US', word_policies: [], course_name: nil)
+    def initialize(prompt = nil, speaker = nil, pastel = nil, thread = nil, recorder = nil, language: 'en-US', word_policies: [], course: nil)
       @language = language
       @word_policies = word_policies
       @prompt = prompt || TTY::Prompt.new 
@@ -22,7 +22,7 @@ module Linguado
       @thread = thread || Thread
       @recorder = recorder || Recorder.new
       @questions = []
-      @course_name = course_name
+      @course = course
     end
 
     def ask_to opts = {}
@@ -45,21 +45,9 @@ module Linguado
       @prompt.say 'Translate this text'
       @prompt.say sentence
 
-      response = @prompt.ask '>'
+      answer = @prompt.ask '>'
 
-      correct? response, *correct_answers
-    end
-
-    def all_selected answers, correct
-      return false unless answers
-
-      correct.all? { |possibility| answers.any? { |answer| answer == possibility } } 
-    end
-
-    def none_selected answers, incorrect
-      return true unless answers
-
-      incorrect.none? { |wrong| answers.any? { |answer| answer == wrong } }
+      ask(__method__, sentence, answer) { correct? answer, *correct_answers }
     end
 
     def select title, correct = [], incorrect = []
@@ -68,7 +56,7 @@ module Linguado
 
       answers = @prompt.multi_select '>', correct + incorrect, enum: ')'
 
-      return correct! if all_selected(answers, correct) and none_selected(answers, incorrect)
+      return correct! if ask(__method__, title, answers) { all_selected(answers, correct) and none_selected(answers, incorrect) }
 
       error correct
     end
@@ -79,7 +67,7 @@ module Linguado
 
       answer = @prompt.select '>', [correct] + incorrect, enum: ')' 
 
-      return correct!(answer) if exact_match answer, correct
+      return correct!(answer) if ask(__method__, title, answer) { exact_match answer, correct }
 
       record_wrong_choice answer, correct
 
@@ -93,7 +81,7 @@ module Linguado
 
       answer = @prompt.ask '>'
 
-      correct? answer, sentence
+      ask(__method__, sentence, answer) { correct? answer, sentence }
     end
 
     def exact_match answer, *possibilities
@@ -214,11 +202,11 @@ module Linguado
     end
 
     def record_correct words
-      words.map { |word| recorder.record_word_exercise course_name, word }
+      words.map { |word| recorder.record_word_exercise course, word }
     end
 
     def record_wrong words
-      words.map { |word, wrong_word| recorder.record_word_exercise course_name, word, wrong_word, false }
+      words.map { |word, wrong_word| recorder.record_word_exercise course, word, wrong_word, false }
     end
 
     def record_wrong_choice answer, correct
@@ -235,6 +223,26 @@ module Linguado
     def record correct_words, wrong_words
       record_correct correct_words
       record_wrong wrong_words
+    end
+
+    def ask method, question_description, response,  &block
+      evaluation = block.call
+
+      recorder.record_question_exercise course, method.to_s, question_description, response, evaluation
+
+      return evaluation
+    end
+
+    def all_selected answers, correct
+      return false unless answers
+
+      correct.all? { |possibility| answers.any? { |answer| answer == possibility } } 
+    end
+
+    def none_selected answers, incorrect
+      return true unless answers
+
+      incorrect.none? { |wrong| answers.any? { |answer| answer == wrong } }
     end
   end
 end

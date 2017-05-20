@@ -20,7 +20,7 @@ describe Lesson do
   let(:word_policy) { FakeWordPolicy.new }
   let(:word_policies) { [] }
 
-  subject { Lesson.new prompt, speaker, pastel, thread, recorder, word_policies: word_policies, course_name: course_name }
+  subject { Lesson.new prompt, speaker, pastel, thread, recorder, word_policies: word_policies, course: course_name }
 
   describe :translate do
     it "should call prompt.say" do
@@ -72,6 +72,14 @@ describe Lesson do
 
       assert_error! "hello"
       return_value.must_equal false
+    end
+
+    it "should record question exercise" do
+      prompt.setup_answer ">", "hello"
+
+      subject.translate "hallo", "hello"
+
+      assert_question_recorded 'translate', 'hallo', 'hello'
     end
 
     describe "with active policies" do
@@ -174,6 +182,12 @@ describe Lesson do
         recorder.word_exercises_recorded.count.must_equal 1
         assert_word_exercises_recording 'die', nil, true
       end
+
+      it "should record question exercise" do
+        subject.choose title, correct, incorrect
+
+        assert_question_recorded 'choose', title, correct
+      end
     end
 
     describe "when wrong answer selected" do
@@ -236,6 +250,15 @@ describe Lesson do
       assert_error! correct
       return_value.must_equal false
     end
+
+    it "should record question exercise" do
+      answer = correct + [incorrect.first]
+      prompt.setup_answer '>', answer
+
+      subject.select title, correct, incorrect
+
+      assert_question_recorded 'select', title, answer, false
+    end
   end
 
   describe :write do
@@ -281,6 +304,15 @@ describe Lesson do
 
       assert_error! "abc"
       return_value.must_equal false
+    end
+
+    it "should record question exercise" do
+      answer = "incorrect"
+      prompt.setup_answer ">", answer
+
+      subject.write "abc"
+
+      assert_question_recorded 'write', 'abc', answer, false
     end
   end
 
@@ -412,5 +444,9 @@ describe Lesson do
   def assert_word_exercises_recording aw, wu, c 
     cn = course_name
     recorder.word_exercises_recorded.any?{ |x| x[:course] == cn and x[:word] == aw and x[:word_used] == wu and x[:correct] == c }.must_equal true
+  end
+
+  def assert_question_recorded type, question, answer, correct = true
+    recorder.question_exercises_recorded.all? { |x| x[:course] == course_name and x[:type] == type and x[:question] == question and x[:answer] == answer and x[:correct] == correct }.must_equal true
   end
 end
