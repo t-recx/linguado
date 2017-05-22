@@ -48,7 +48,7 @@ module Linguado
 
       answer = @prompt.ask '>'
 
-      ask(__method__, sentence, answer) { correct? answer, *correct_answers }
+      question(__method__, sentence, answer) { correct? answer, *correct_answers }
     end
 
     def select title, correct = [], incorrect = []
@@ -57,7 +57,7 @@ module Linguado
 
       answers = @prompt.multi_select '>', correct + incorrect, enum: ')'
 
-      return correct! if ask(__method__, title, answers) { all_selected(answers, correct) and none_selected(answers, incorrect) }
+      return correct! if question(__method__, title, answers) { all_selected(answers, correct) and none_selected(answers, incorrect) }
 
       error correct
     end
@@ -68,7 +68,7 @@ module Linguado
 
       answer = @prompt.select '>', [correct] + incorrect, enum: ')' 
 
-      return correct!(answer) if ask(__method__, title, answer) { exact_match answer, correct }
+      return correct!(answer) if question(__method__, title, answer) { exact_match answer, correct }
 
       record_wrong_choice answer, correct
 
@@ -82,7 +82,7 @@ module Linguado
 
       answer = @prompt.ask '>'
 
-      ask(__method__, sentence, answer) { correct? answer, sentence }
+      question(__method__, sentence, answer) { correct? answer, sentence }
     end
 
     def exact_match answer, *possibilities
@@ -226,7 +226,7 @@ module Linguado
       record_wrong wrong_words
     end
 
-    def ask method, question_description, response,  &block
+    def question method, question_description, response,  &block
       evaluation = block.call
 
       recorder.record_question_exercise course, method.to_s, question_description, response, evaluation
