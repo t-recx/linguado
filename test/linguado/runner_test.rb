@@ -1,7 +1,6 @@
 require 'test_helper'
 require 'linguado'
 require 'tty-cursor'
-require 'fakes/fake_lesson.rb'
 require 'fakes/fake_kernel.rb'
 require 'fakes/fake_progress_bar.rb'
 require 'fakes/fake_screen.rb'
@@ -17,7 +16,6 @@ describe Runner do
   let(:width) { 13 }
   let(:screen) { FakeScreen.new width }
   let(:progress_bar_module) { FakeProgressBar }
-  let(:lesson) { FakeLesson.new questions }
   let(:pastel) do  
     p = FakePastel.new 
     def p.on_green(s); 'G'; end
@@ -83,13 +81,17 @@ describe Runner do
     it "should keep asking question until the sum of correct and incorrect answers equals passed parameter" do
       questions.push get_question with_failures: 2, after_being_called: 4 
 
-      subject.ask(questions, 10).must_equal 14
+      rv = subject.ask(questions, 10)
+      rv.first.must_equal 14
+      rv.drop(1).first.must_equal 12
     end
 
     it "correct answer count should never drop into negative territory" do
       questions.push get_question with_failures: 2
 
-      subject.ask(questions, 10).must_equal 12
+      rv = subject.ask(questions, 10)
+      rv.first.must_equal 12
+      rv.drop(1).first.must_equal 10 
     end
 
     it "should show question header before each question" do

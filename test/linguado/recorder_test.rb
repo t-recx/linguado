@@ -27,16 +27,16 @@ describe Recorder do
     it "should create course if it doesn't exist" do
       exercise_record_word
 
-      Course.first.name.must_equal course
-      Course.first.created_at.wont_equal nil
-      Course.count.must_equal 1
+      Database::Models::Course.first.name.must_equal course
+      Database::Models::Course.first.created_at.wont_equal nil
+      Database::Models::Course.count.must_equal 1
     end
 
     it "shouldn't create more than one course with the same name" do
       exercise_record_word
       exercise_record_word
 
-      Course.count.must_equal 1
+      Database::Models::Course.count.must_equal 1
     end
 
     it "should create word if it doesn't exist" do
@@ -69,16 +69,16 @@ describe Recorder do
     it "should create course if it doesn't exist" do
       exercise_record_question
 
-      Course.first.name.must_equal course
-      Course.first.created_at.wont_equal nil
-      Course.count.must_equal 1
+      Database::Models::Course.first.name.must_equal course
+      Database::Models::Course.first.created_at.wont_equal nil
+      Database::Models::Course.count.must_equal 1
     end
 
     it "shouldn't create more than one course with the same name" do
       exercise_record_question
       exercise_record_question
 
-      Course.count.must_equal 1
+      Database::Models::Course.count.must_equal 1
     end
 
     it "should create question if it doesn't exist" do

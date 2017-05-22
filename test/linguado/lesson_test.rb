@@ -21,6 +21,12 @@ describe Lesson do
   let(:word_policies) { [] }
 
   subject { Lesson.new prompt, speaker, pastel, thread, recorder, word_policies: word_policies, course: course_name }
+  
+  describe :initialize do
+    it "if no name supplied should use full class name" do
+      subject.name.must_equal "Linguado::Lesson"
+    end
+  end
 
   describe :translate do
     it "should call prompt.say" do
@@ -447,6 +453,7 @@ describe Lesson do
   end
 
   def assert_question_recorded type, question, answer, correct = true
+    recorder.question_exercises_recorded.count.must_equal 1
     recorder.question_exercises_recorded.all? { |x| x[:course] == course_name and x[:type] == type and x[:question] == question and x[:answer] == answer and x[:correct] == correct }.must_equal true
   end
 end

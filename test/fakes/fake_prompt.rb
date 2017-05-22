@@ -24,7 +24,7 @@ class FakePrompt
   def ask sentence
     questions.push sentence
 
-    return @answers[sentence]
+    return @answers[sentence].shift if @answers[sentence]
   end
 
   def ok sentence
@@ -38,16 +38,17 @@ class FakePrompt
   def multi_select title, choices, options = nil
     multi_selections.push({ title: title, choices: choices, options: options })
 
-    return @answers[title]
+    return @answers[title].shift if @answers[title]
   end
 
   def select title, choices, options = nil
     selections.push({ title: title, choices: choices, options: options })
 
-    return @answers[title]
+    return @answers[title].shift if @answers[title]
   end
 
   def setup_answer sentence, response
-    @answers[sentence] = response
+    @answers[sentence] = [] unless @answers[sentence]
+    @answers[sentence].push response
   end
 end

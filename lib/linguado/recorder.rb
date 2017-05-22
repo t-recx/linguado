@@ -30,21 +30,21 @@ module Linguado
     end
 
     def get_lesson_exercises course_name, lesson_name
-      LessonExercise.where(lesson: Database::Models::Lesson.where(course: Course.where(name: course_name), name: lesson_name)).map { |x| x.values }
+      LessonExercise.where(lesson: Database::Models::Lesson.where(course: Database::Models::Course.where(name: course_name), name: lesson_name)).map { |x| x.values }
     end
 
     def get_question_exercises course_name, type, question_description
-      QuestionExercise.where(question: Question.where(course: Course.where(name: course_name), type: type, question: question_description)).map { |x| x.values }
+      QuestionExercise.where(question: Question.where(course: Database::Models::Course.where(name: course_name), type: type, question: question_description)).map { |x| x.values }
     end
 
     def get_word_exercises course_name, word
-      WordExercise.where(word: Word.where(name: word, course: Course.where(name: course_name))).map { |x| x.values }
+      WordExercise.where(word: Word.where(name: word, course: Database::Models::Course.where(name: course_name))).map { |x| x.values }
     end
 
     def get_course course_name
-      course = Course.where(name: course_name).first
+      course = Database::Models::Course.where(name: course_name).first
 
-      course = Course.create(name: course_name) unless course
+      course = Database::Models::Course.create(name: course_name) unless course
 
       return course
     end

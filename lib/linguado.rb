@@ -5,6 +5,7 @@ require "linguado/word_policy"
 require "linguado/runner"
 require "linguado/database"
 require "linguado/recorder"
+require "linguado/course"
 
 module Linguado
 end

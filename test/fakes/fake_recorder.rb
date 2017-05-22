@@ -28,7 +28,7 @@ class FakeRecorder
   end
 
   def get_lesson_exercises course_name, lesson_name
-    @lesson_exercises[{course: course_name, lesson: lesson_name}]
+    @lesson_exercises[{course: course_name, lesson: lesson_name}] || @lesson_exercises[{course: nil, lesson: nil}]
   end
 
   def get_question_exercises course_name, type, question_description

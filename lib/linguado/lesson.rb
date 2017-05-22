@@ -12,8 +12,9 @@ module Linguado
     attr_accessor :language
     attr_accessor :word_policies
     attr_accessor :course
+    attr_accessor :name
 
-    def initialize(prompt = nil, speaker = nil, pastel = nil, thread = nil, recorder = nil, language: 'en-US', word_policies: [], course: nil)
+    def initialize(prompt = nil, speaker = nil, pastel = nil, thread = nil, recorder = nil, language: 'en-US', word_policies: [], course: nil, name: nil)
       @language = language
       @word_policies = word_policies
       @prompt = prompt || TTY::Prompt.new 
@@ -21,6 +22,7 @@ module Linguado
       @pastel = pastel || Pastel.new
       @thread = thread || Thread
       @recorder = recorder || Recorder.new
+      @name = name || self.class.name
       @questions = []
       @course = course
     end
@@ -32,13 +34,12 @@ module Linguado
     end
 
     def get_question_call opts
-      opts[:answer] = opts[:answers] if opts.keys.include? :answers
-      opts[:answers] = opts[:answer] if opts.keys.include? :answer
+      answers = opts[:answer] || opts[:answers]
 
       return lambda { write opts[:write] } if opts.keys.include? :write
-      return lambda { choose opts[:choose], opts[:answer], opts[:wrong] } if opts.keys.include? :choose 
-      return lambda { translate opts[:translate], *opts[:answers] } if opts.keys.include? :translate
-      return lambda { select opts[:select], opts[:answers], opts[:wrong] } if opts.keys.include? :select
+      return lambda { choose opts[:choose], answers, opts[:wrong] } if opts.keys.include? :choose 
+      return lambda { translate opts[:translate], *answers } if opts.keys.include? :translate
+      return lambda { select opts[:select], answers, opts[:wrong] } if opts.keys.include? :select
     end
 
     def translate sentence, *correct_answers

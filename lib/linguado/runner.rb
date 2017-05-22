@@ -22,6 +22,7 @@ module Linguado
       delta_answers = 0
       questions_asked = 0
       difference = 0
+      correct_answers = 0
 
       if questions and not questions.empty? then
         shuffled_questions = []
@@ -33,6 +34,7 @@ module Linguado
 
           correct = shuffled_questions.pop[:question].call 
           difference = (correct ? 1 : -1)
+          correct_answers += 1 if correct
           
           @kernel.gets
 
@@ -48,7 +50,7 @@ module Linguado
 
       print_lesson_status "Lesson complete. Good job!", difference
 
-      return questions_asked
+      return [questions_asked, correct_answers]
     end
 
     def print_lesson_status header, difference
