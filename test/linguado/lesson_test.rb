@@ -331,6 +331,10 @@ describe Lesson do
     describe "with active policies" do
       let(:word_policies) { [general_word_policy] }
 
+      it "should also ignore punctuation" do
+        subject.correct?('the, cat is so. tired?', 'the cat is so tried').must_equal true
+      end
+
       it "should accept answer from one of the possibilities" do
         subject.correct?('abc def gih', 'xxx xxx xxx', 'yyy yyy yyy', 'abc def ghi').must_equal true
       end
