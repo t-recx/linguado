@@ -24,25 +24,26 @@ describe Application do
   describe :run do
     describe "when there are no courses available" do
       before do
-        def subject.get_courses; []; end
+        def subject.courses; []; end
       end
 
       it "should print logo" do
         subject.run
 
         artii.asciifies.count { |a| a == 'linguado' }.must_equal 1
+        kernel.puts_array.first.must_equal 'linguado'
       end
 
       it "should print version" do
         subject.run
 
-        kernel.puts_array.first.must_equal "Version #{Linguado::VERSION}"
+        kernel.puts_array.drop(2).first.must_equal "Version #{Linguado::VERSION}"
       end
 
       it "should welcome user" do
         subject.run
 
-        kernel.puts_array.drop(1).first.must_equal "Welcome back, #{Etc.getpwnam(Etc.getlogin).gecos.split(/,/).first}"  
+        kernel.puts_array.drop(3).first.must_equal "Welcome back, #{Etc.getpwnam(Etc.getlogin).gecos.split(/,/).first}"  
       end
 
       it "should require all course files in home directory" do
@@ -55,11 +56,10 @@ describe Application do
         kernel.requires.must_equal courses
       end
 
-
       it "should inform there are no courses available if that's the case" do
         subject.run
 
-        kernel.puts_array.drop(2).first.must_equal "No courses found! Please put some in the #{dir.home}/.linguado directory and try again"
+        kernel.puts_array.drop(4).first.must_equal "No courses found! Please put some in the #{dir.home}/.linguado directory and try again"
       end
     end
 
@@ -68,7 +68,6 @@ describe Application do
         setup_exit
 
         subject.run
-
         subject.courses.count { |course| course.is_a? GermanCourse }.must_equal 1
         subject.courses.count { |course| course.is_a? ItalianCourse }.must_equal 1
         subject.courses.count.must_equal 2
@@ -109,7 +108,7 @@ describe Application do
     def c.work_called; @work_called; end
     def c.times_called; @times_called; end
     def subject.test_courses= v; @test_courses = v; end
-    def subject.get_courses; @test_courses; end
+    def subject.courses; @test_courses; end
     subject.test_courses = [c]
 
     return c

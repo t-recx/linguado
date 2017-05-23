@@ -15,7 +15,7 @@ class FakeKernel
     @prints.push s
   end
 
-  def puts s
+  def puts s = ''
     @puts_array.push s
   end
 
