@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "tty-screen"
   spec.add_dependency "sqlite3"
   spec.add_dependency "sequel"
+  spec.add_dependency "artii"
 
   spec.add_development_dependency "bundler", "~> 1.14"
   spec.add_development_dependency "rake", "~> 10.0"

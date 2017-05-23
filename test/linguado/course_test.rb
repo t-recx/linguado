@@ -23,6 +23,14 @@ describe Course do
   let(:correct_answers) { 8 }
   subject { Course.new prompt, runner, recorder, name: course_name }
 
+  describe :initialize do
+    let(:course_name) { nil }
+
+    it "when no name supplied should use class name" do
+      subject.name.must_equal 'Course'
+    end
+  end
+
   describe :topic do
     it "should create record in topics" do
       subject.topic 'Introduction'
@@ -32,7 +40,7 @@ describe Course do
     end
   end
 
-  describe :run do
+  describe :work do
     let(:title) { 'Select a lesson' }
 
     before do
@@ -61,7 +69,7 @@ describe Course do
     it "should start by showing top level items" do
       setup_exit
 
-      subject.run
+      subject.work
 
       assert_selection ['Introduction', 'Verbs', 'Culture']
     end
@@ -70,7 +78,7 @@ describe Course do
       setup_exit
       recorder.lesson_exercises[{course: course_name, lesson: hung_up_lesson_name}] = []
 
-      subject.run
+      subject.work
 
       assert_selection ['Introduction', 'Verbs']
     end
@@ -83,7 +91,7 @@ describe Course do
       it "should show sub-topics list for selection" do
         setup_exit
 
-        subject.run
+        subject.work
 
         assert_selection ['Present', 'Future'], 1
       end
@@ -91,7 +99,7 @@ describe Course do
       it "should show previous menu when going back" do
         setup_exit
 
-        subject.run
+        subject.work
 
         assert_selection ['Introduction', 'Verbs', 'Culture'], 2
       end
@@ -104,7 +112,7 @@ describe Course do
         it "should show next menu when going further" do
           setup_exit
 
-          subject.run
+          subject.work
 
           assert_selection ['Lesson One', 'Lesson Two'], 2
           assert_selection ['Present', 'Future'], 3
@@ -119,7 +127,7 @@ describe Course do
           it "should call runner.ask" do
             setup_exit 
 
-            subject.run
+            subject.work
 
             runner.asked.first.must_equal questions_two
           end
@@ -129,7 +137,7 @@ describe Course do
             runner.questions_asked = questions_asked
             runner.correct_answers = correct_answers
 
-            subject.run
+            subject.work
 
             recorder.lesson_exercises_recorded.count { |le| le[:course] == course_name and le[:lesson] == lesson_name and le[:questions] == questions_asked and le[:correct_answers] == correct_answers }.must_equal 1
           end

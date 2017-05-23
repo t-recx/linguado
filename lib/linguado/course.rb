@@ -5,12 +5,13 @@ require 'linguado/recorder'
 module Linguado
   class Course
     attr_accessor :topics
+    attr_accessor :name
 
     def initialize prompt = nil, runner = nil, recorder = nil, name: nil
       @prompt = prompt || TTY::Prompt.new
       @runner = runner || Runner.new
       @recorder = recorder || Recorder.new
-      @name = name
+      @name = name || self.class.name.split('::').last.split(/(?=[A-Z])/).join(' ')
       @topics = []
       @back_text = 'Go Back'
     end
@@ -31,7 +32,7 @@ module Linguado
       ts.select { |t| t[:name] == subject and t[:lesson] }.map { |t| t[:lesson] }.first
     end
 
-    def run
+    def work
       subject = nil
       subjects_transversed = [subject]
 
