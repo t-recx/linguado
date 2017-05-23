@@ -9,22 +9,29 @@ module Linguado
       @artii = artii || Artii::Base.new
       @dir = dir || Dir
       @prompt = prompt || TTY::Prompt.new
-      @exit = 'Exit'
     end
 
     def run
+      print_header
+
+      require_course_files
+
+      return print_no_courses if courses.empty? 
+
+      while course = select_course
+        course.work
+      end
+    end
+
+    def print_no_courses
+      @kernel.puts "No courses found! Please put some in the #{@dir.home}/.linguado directory and try again" 
+    end
+
+    def print_header
       @kernel.puts @artii.asciify('linguado') 
       @kernel.puts
       @kernel.puts "Version #{Linguado::VERSION}"
       @kernel.puts "Welcome back, #{user_name}" 
-      
-      require_course_files
-
-      return @kernel.puts "No courses found! Please put some in the #{@dir.home}/.linguado directory and try again" if courses.empty? 
-
-      while (selection = select_course) != @exit 
-        courses.select { |c| c.name == selection }.first.work
-      end
     end
 
     def require_course_files
@@ -34,7 +41,11 @@ module Linguado
     end
 
     def select_course
-      @prompt.select 'Select course', courses.map { |c| c.name }.sort { |a,b| a <=> b } + [@exit]
+      courses.select { |c| c.name == select_course_name }.first
+    end
+
+    def select_course_name
+      @prompt.select 'Select course', courses.map { |c| c.name }.sort { |a,b| a <=> b } + ['Exit']
     end
 
     def user_name
