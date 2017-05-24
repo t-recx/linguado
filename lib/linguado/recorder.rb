@@ -41,6 +41,10 @@ module Linguado
       WordExercise.where(word: Word.where(name: word, course: Database::Models::Course.where(name: course_name))).map { |x| x.values }
     end
 
+    def already_passed_lesson course_name, lesson_name
+      not LessonExercise.where(lesson: Database::Models::Lesson.where(course: Database::Models::Course.where(name: course_name), name: lesson_name)).empty?
+    end
+
     def get_course course_name
       course = Database::Models::Course.where(name: course_name).first
 

@@ -132,6 +132,18 @@ describe Recorder do
     end
   end
 
+  describe :already_passed_lesson do
+    it "should return false if no record of lesson already on database" do
+      subject.already_passed_lesson(course, lesson).must_equal false
+    end
+
+    it "should return true if already has record of lesson on database" do
+      subject.record_lesson_exercise course, lesson, 10, 10
+
+      subject.already_passed_lesson(course, lesson).must_equal true
+    end
+  end
+
   describe :get_word_exercise_record_words do
     it "should be alright when no records present" do
       subject.get_word_exercises('abc', 'def').count.must_equal 0

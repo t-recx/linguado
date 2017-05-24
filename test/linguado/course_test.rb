@@ -63,7 +63,7 @@ describe Course do
       subject.topic "Lesson One", in: "Places", lesson: get_fake_lesson
       subject.topic "Lesson Two", in: "Places", lesson: get_fake_lesson
 
-      recorder.lesson_exercises[{course: nil, lesson: nil}] = { :whatever => :whatever }
+      recorder.already_passed_lessons[{course: nil, lesson:nil}] = true
     end
 
     it "should start by showing top level items" do
@@ -76,7 +76,7 @@ describe Course do
 
     it "should hide items that have dependencies without completed lessons" do
       setup_exit
-      recorder.lesson_exercises[{course: course_name, lesson: hung_up_lesson_name}] = []
+      recorder.already_passed_lessons[{course: course_name, lesson: hung_up_lesson_name}] = false
 
       subject.work
 

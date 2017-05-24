@@ -5,6 +5,7 @@ class FakeRecorder
   attr_accessor :word_exercises
   attr_accessor :question_exercises
   attr_accessor :lesson_exercises
+  attr_accessor :already_passed_lessons
 
   def initialize
     @word_exercises_recorded = []
@@ -13,6 +14,7 @@ class FakeRecorder
     @word_exercises = {}
     @question_exercises = {}
     @lesson_exercises = {}
+    @already_passed_lessons = {}
   end
 
   def record_word_exercise course_name, actual_word, word_used = nil, correct = true
@@ -37,6 +39,14 @@ class FakeRecorder
 
   def get_word_exercises course_name, word
     @word_exercises[{course: course_name, word: word}]
+  end
+
+  def already_passed_lesson course_name, lesson_name
+    result = @already_passed_lessons[{course: course_name, lesson: lesson_name}] 
+    
+    result = @already_passed_lessons[{course: nil, lesson: nil}] if result == nil
+
+    return result
   end
 
   def get_course course_name

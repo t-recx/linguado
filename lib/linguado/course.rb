@@ -37,7 +37,7 @@ module Linguado
       subjects_transversed = [subject]
 
       loop do
-        ts = @topics.select { |t| t[:in] == subject && (!t[:depends_upon] or @recorder.get_lesson_exercises(@name, t[:depends_upon]).count > 0) }
+        ts = @topics.select { |t| t[:in] == subject && (!t[:depends_upon] or @recorder.already_passed_lesson(@name, t[:depends_upon])) }
 
         subject = @prompt.select 'Select a lesson', ts.map { |t| t[:name] } + [@back_text]
 
