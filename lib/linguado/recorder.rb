@@ -18,7 +18,11 @@ module Linguado
 
       question = get_question course.pk, type, question_description
 
-      QuestionExercise.create(question_id: question.pk, correct: correct, answer: answer)
+      answers = [*answer]
+
+      answers.each do |a|
+        QuestionExercise.create(question_id: question.pk, correct: correct, answer: a)
+      end
     end
 
     def record_lesson_exercise course_name, lesson_name, questions_asked, correct_answers

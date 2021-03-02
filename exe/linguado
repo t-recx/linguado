@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
 require "linguado"
 
-ENV['LINGUADODB'] ||= "#{Dir.home}/.linguado/linguado.db"
 Linguado.application.run

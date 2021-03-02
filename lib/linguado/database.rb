@@ -2,6 +2,8 @@ require 'sequel'
 require 'sequel/plugins/timestamps'
 require "linguado/database/schema"
 
+ENV['LINGUADODB'] ||= "#{Dir.home}/.linguado/linguado.db"
+
 DB = Sequel.sqlite ENV['LINGUADODB']
 Linguado::Database::Schema.new.create_database
 
