@@ -3,7 +3,7 @@
 Linguado's a language learning terminal program, similar to [duolingo](https://duolingo.com/). It allows users to practice foreign languages by:
 * Translating sentences;
 * Transcribing what they hear;
-* Choosing one or multiple options to fill blank spaces;
+* Choosing one or multiple options to provide an answer to a question;
 
 # Lessons and courses
 
@@ -53,10 +53,39 @@ class German < Course
 end
 ```
 
-Courses' filenames should end in _course.rb in order to be recognized.
+Courses' filenames should end in **_course.rb** in order to be recognized.
 
 
-# Instalation
+## Word policies
+
+If you'd like to give your users some leeway on the ortography of words, allowing them to make typos if they don't differ too much from the correct answer, you can use the WordPolicy class. Word policies accept the following parameters:
+
+|Parameter|Type|Description|
+|-|-|-|
+|levenshtein_distance_allowed|integer|[Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) tolerated between the correct word and the word the user wrote|
+|exceptions|array|List of words that can't be written any other way (useful for short words that you want to make sure the user gets right)|
+|condition|lambda|A lambda accepting a string for a word and returning a boolean. Use it to define conditions for the word policy to apply if you need more control|
+
+
+Every lesson can have multiple word policies and they're declared on the constructor:
+
+```ruby
+class BasicsI < Lesson
+  def initialize
+    # we'll allow a deviation of 2 characters for most words:
+    general_word_policy = WordPolicy.new(levenshtein_distance_allowed: 2) 
+    
+    # the word 'ein' can have a typo - like 'eni' for instance - but not be mistaken with 'einen' or 'eine':
+    ein_word_policy = WordPolicy.new condition: lambda { |word| word == 'ein' }, exceptions: ['einen', 'eine'], levenshtein_distance_allowed: 2 
+
+    super course: 'German', language: 'de-DE', name: 'Basics I', word_policies: [general_word_policy, ein_word_policy]
+    
+    ask_to write: 'es ist ein hund'
+  end
+end
+```
+
+# Installation
 
 	$ bundle install
 

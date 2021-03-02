@@ -126,7 +126,7 @@ describe Lesson do
     end
 
     describe "with real world word policies" do
-      let(:ein_word_policy) { WordPolicy.new condition: lambda { |word| word == 'ein' }, exceptions: ['einen', 'eine'], levenshtein_distance_allowed: 0 }
+      let(:ein_word_policy) { WordPolicy.new condition: lambda { |word| word == 'ein' }, exceptions: ['einen', 'eine'], levenshtein_distance_allowed: 2 }
 
       let(:word_policies) { [ein_word_policy, general_word_policy] }
 
@@ -137,6 +137,15 @@ describe Lesson do
 
         prompt.errors.must_include "You used the wrong word."
         prompt.errors.must_include "ich bin _ein_ hund"
+      end
+
+      it "should mark as correct if ein had a typo" do
+        prompt.setup_answer ">", "ich bin eni hund"
+
+        subject.write "ich bin ein hund"
+
+        prompt.okays.must_include "Almost Correct!"
+        prompt.okays.must_include "ich bin _ein_ hund"
       end
 
       it "should mark as correct if there are some typos" do
