@@ -75,7 +75,8 @@ class BasicsI < Lesson
     # we'll allow a deviation of 2 characters for most words:
     general_word_policy = WordPolicy.new levenshtein_distance_allowed: 0
 
-    # the word 'ein' can have a typo - like 'eni' for instance - but not be mistaken with 'einen' or 'eine':
+    # the word 'ein' can have a typo, like 'eni' for instance
+    # but not be mistaken with 'einen' or 'eine':
     ein_word_policy = WordPolicy.new condition: lambda { |word| word == 'ein' },
       exceptions: ['einen', 'eine'], 
       levenshtein_distance_allowed: 2
