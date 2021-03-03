@@ -73,7 +73,7 @@ Every lesson can have multiple word policies and they're declared on the constru
 class BasicsI < Lesson
   def initialize
     # we'll allow a deviation of 2 characters for most words:
-    general_word_policy = WordPolicy.new levenshtein_distance_allowed: 0
+    general_word_policy = WordPolicy.new levenshtein_distance_allowed: 2
 
     # the word 'ein' can have a typo, like 'eni' for instance
     # but not be mistaken with 'einen' or 'eine':
