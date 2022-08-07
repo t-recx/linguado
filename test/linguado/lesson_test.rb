@@ -24,7 +24,7 @@ describe Lesson do
   
   describe :initialize do
     it "if no name supplied should use full class name" do
-      subject.name.must_equal "Linguado::Lesson"
+      _(subject.name).must_equal "Linguado::Lesson"
     end
   end
 
@@ -32,13 +32,13 @@ describe Lesson do
     it "should call prompt.say" do
       subject.translate "a", "b"
 
-      prompt.says.must_equal ['Translate this text', 'a']
+      _(prompt.says).must_equal ['Translate this text', 'a']
     end
 
     it "should call prompt.ask" do
       subject.translate "test", "test"
 
-      prompt.questions.must_include ">"
+      _(prompt.questions).must_include ">"
     end
 
     it "should call prompt.ok if translation correct" do
@@ -47,7 +47,7 @@ describe Lesson do
       return_value = subject.translate "hallo", "hello"
 
       assert_okay!
-      return_value.must_equal true
+      _(return_value).must_equal true
     end
 
     it "should ignore casing when checking translation" do
@@ -68,7 +68,7 @@ describe Lesson do
 
       subject.translate "hallo", "hello", "hi"
 
-      prompt.okays.count.must_equal 2
+      _(prompt.okays.count).must_equal 2
     end
 
     it "should call prompt.error if translation incorrect" do
@@ -77,7 +77,7 @@ describe Lesson do
       return_value = subject.translate "hallo", "hello"
 
       assert_error! "hello"
-      return_value.must_equal false
+      _(return_value).must_equal false
     end
 
     it "should record question exercise" do
@@ -98,10 +98,10 @@ describe Lesson do
 
         subject.translate "hallo ich bin müde", "hi I am tired"
 
-        word_policy.passes.count.must_equal tokens_answer.count
-        word_policy.typos.count.must_equal tokens_answer.count
-        word_policy.passes.map { |p| p[:word].downcase }.must_equal tokens_answer
-        word_policy.typos.map { |p| p[:word].downcase }.must_equal tokens_answer
+        _(word_policy.passes.count).must_equal tokens_answer.count
+        _(word_policy.typos.count).must_equal tokens_answer.count
+        _(word_policy.passes.map { |p| p[:word].downcase }).must_equal tokens_answer
+        _(word_policy.typos.map { |p| p[:word].downcase }).must_equal tokens_answer
       end
 
       it "should point out the typos when answers have them" do
@@ -110,8 +110,8 @@ describe Lesson do
 
         subject.translate "hallo ich bin krank", "hi I am sick"
 
-        prompt.okays.must_include "Almost Correct!"
-        prompt.okays.must_include "hi I am _sick_"
+        _(prompt.okays).must_include "Almost Correct!"
+        _(prompt.okays).must_include "hi I am _sick_"
       end
 
       it "should be okay if answer has more words than the correct answer" do
@@ -135,8 +135,8 @@ describe Lesson do
 
         subject.write "ich bin ein hund"
 
-        prompt.errors.must_include "You used the wrong word."
-        prompt.errors.must_include "ich bin _ein_ hund"
+        _(prompt.errors).must_include "You used the wrong word."
+        _(prompt.errors).must_include "ich bin _ein_ hund"
       end
 
       it "should mark as correct if ein had a typo" do
@@ -144,8 +144,8 @@ describe Lesson do
 
         subject.write "ich bin ein hund"
 
-        prompt.okays.must_include "Almost Correct!"
-        prompt.okays.must_include "ich bin _ein_ hund"
+        _(prompt.okays).must_include "Almost Correct!"
+        _(prompt.okays).must_include "ich bin _ein_ hund"
       end
 
       it "should mark as correct if there are some typos" do
@@ -153,8 +153,8 @@ describe Lesson do
 
         subject.translate "Hi I am alone", "Hallo ich bin Alleine"
 
-        prompt.okays.must_include "Almost Correct!"
-        prompt.okays.must_include "_Hallo_ _ich_ bin _Alleine_"
+        _(prompt.okays).must_include "Almost Correct!"
+        _(prompt.okays).must_include "_Hallo_ _ich_ bin _Alleine_"
       end
     end
   end
@@ -167,16 +167,16 @@ describe Lesson do
     it "should call prompt.say" do
       subject.choose title, correct, incorrect
 
-      prompt.says.must_equal ["Choose the correct option", title]
+      _(prompt.says).must_equal ["Choose the correct option", title]
     end
 
     it "should call prompt.select" do
       subject.choose title, correct, incorrect
 
       selection = prompt.selections.first
-      selection[:title].must_equal '>'
-      selection[:choices].must_equal [correct] + incorrect
-      selection[:options][:enum].must_equal ')'
+      _(selection[:title]).must_equal '>'
+      _(selection[:choices]).must_equal [correct] + incorrect
+      _(selection[:options][:enum]).must_equal ')'
     end
 
     describe "when correct answer selected" do
@@ -188,13 +188,13 @@ describe Lesson do
         return_value = subject.choose title, correct, incorrect
 
         assert_okay!
-        return_value.must_equal true
+        _(return_value).must_equal true
       end
 
       it "should record correct answer" do
         subject.choose title, correct, incorrect
 
-        recorder.word_exercises_recorded.count.must_equal 1
+        _(recorder.word_exercises_recorded.count).must_equal 1
         assert_word_exercises_recording 'die', nil, true
       end
 
@@ -216,13 +216,13 @@ describe Lesson do
         return_value = subject.choose(title, correct, incorrect)
 
         assert_error! correct
-        return_value.must_equal false
+        _(return_value).must_equal false
       end
 
       it "should record wrong answer" do
         subject.choose(title, correct, incorrect)
 
-        recorder.word_exercises_recorded.count.must_equal 1
+        _(recorder.word_exercises_recorded.count).must_equal 1
         assert_word_exercises_recording correct, selected_answer, false
       end
     end
@@ -236,16 +236,16 @@ describe Lesson do
     it "should call prompt.say" do
       subject.select title, correct, incorrect
 
-      prompt.says.must_equal ["Select all correct translations", title]
+      _(prompt.says).must_equal ["Select all correct translations", title]
     end
 
     it "should call prompt.multi_select" do
       subject.select title, correct, incorrect
 
       selection = prompt.multi_selections.first
-      selection[:title].must_equal '>'
-      selection[:choices].must_equal correct + incorrect
-      selection[:options][:enum].must_equal ")"
+      _(selection[:title]).must_equal '>'
+      _(selection[:choices]).must_equal correct + incorrect
+      _(selection[:options][:enum]).must_equal ")"
     end
 
     it "should call prompt.ok if all correct answers are selected" do
@@ -254,7 +254,7 @@ describe Lesson do
       return_value = subject.select(title, correct, incorrect)
 
       assert_okay!
-      return_value.must_equal true
+      _(return_value).must_equal true
     end
 
     it "should call prompt.error if incorrect answers are selected" do
@@ -263,7 +263,7 @@ describe Lesson do
       return_value = subject.select(title, correct, incorrect)
 
       assert_error! correct
-      return_value.must_equal false
+      _(return_value).must_equal false
     end
 
     it "should record question exercise" do
@@ -280,7 +280,7 @@ describe Lesson do
     it "should call speaker.speak" do
       subject.write "abc"
 
-      speaker.sentences.first[:sentence].must_equal "abc"
+      _(speaker.sentences.first[:sentence]).must_equal "abc"
     end
 
     it "should pass correct language code from the lesson to speaker" do
@@ -288,19 +288,19 @@ describe Lesson do
 
       subject.write "abc"
 
-      speaker.sentences.first[:language].must_equal "de-DE"
+      _(speaker.sentences.first[:language]).must_equal "de-DE"
     end
 
     it "should call prompt.say" do
       subject.write "abc"
 
-      prompt.says.first.must_equal "Type what you hear"
+      _(prompt.says.first).must_equal "Type what you hear"
     end
 
     it "should call prompt.ask" do
       subject.write "abc"
 
-      prompt.questions.first.must_equal ">"
+      _(prompt.questions.first).must_equal ">"
     end
 
     it "should call prompt.ok if correct response" do
@@ -309,7 +309,7 @@ describe Lesson do
       return_value = subject.write "abc"
 
       assert_okay!
-      return_value.must_equal true
+      _(return_value).must_equal true
     end
 
     it "should call prompt.error if incorrect response" do
@@ -318,7 +318,7 @@ describe Lesson do
       return_value = subject.write "abc"
 
       assert_error! "abc"
-      return_value.must_equal false
+      _(return_value).must_equal false
     end
 
     it "should record question exercise" do
@@ -333,25 +333,25 @@ describe Lesson do
 
   describe :correct? do
     it "should ignore punctuation" do
-      subject.correct?('the,    cat! is so. tired 123?', 'the cat is so tired 123').must_equal true
-      subject.correct?('dIE KaTze ist sehr müde 123', 'die, katze! ist sehr. müde    123?').must_equal true
+      _(subject.correct?('the,    cat! is so. tired 123?', 'the cat is so tired 123')).must_equal true
+      _(subject.correct?('dIE KaTze ist sehr müde 123', 'die, katze! ist sehr. müde    123?')).must_equal true
     end
 
     describe "with active policies" do
       let(:word_policies) { [general_word_policy] }
 
       it "should also ignore punctuation" do
-        subject.correct?('the, cat is so. tired?', 'the cat is so tried').must_equal true
+        _(subject.correct?('the, cat is so. tired?', 'the cat is so tried')).must_equal true
       end
 
       it "should accept answer from one of the possibilities" do
-        subject.correct?('abc def gih', 'xxx xxx xxx', 'yyy yyy yyy', 'abc def ghi').must_equal true
+        _(subject.correct?('abc def gih', 'xxx xxx xxx', 'yyy yyy yyy', 'abc def ghi')).must_equal true
       end
 
       it "should record words when wrong words used" do
         subject.correct? "die kotze exaist sehr noodle", "die katze ist sehr müde"
 
-        recorder.word_exercises_recorded.count.must_equal 5
+        _(recorder.word_exercises_recorded.count).must_equal 5
         assert_word_exercises_recording 'die', nil, true
         assert_word_exercises_recording 'katze', nil, true
         assert_word_exercises_recording 'ist', 'exaist', false
@@ -362,7 +362,7 @@ describe Lesson do
       it "should record words when typos are present" do
         subject.correct? "abc edf", "abc def"
 
-        recorder.word_exercises_recorded.count.must_equal 2
+        _(recorder.word_exercises_recorded.count).must_equal 2
         assert_word_exercises_recording 'abc', nil, true
         assert_word_exercises_recording 'def', nil, true
       end
@@ -370,7 +370,7 @@ describe Lesson do
       it "should record words when everything is correct" do
         subject.correct? "abc def ghi", "das der cba", "abc def ghi", "xij fdk dkj"
 
-        recorder.word_exercises_recorded.count.must_equal 3 
+        _(recorder.word_exercises_recorded.count).must_equal 3 
         assert_word_exercises_recording 'abc', nil, true
         assert_word_exercises_recording 'def', nil, true
         assert_word_exercises_recording 'ghi', nil, true
@@ -390,9 +390,9 @@ describe Lesson do
       subject.ask_to write: 'hallo'
       subject.ask_to choose: 'abc', answer: 'xx', incorrect: 'yy'
 
-      subject.questions.count.must_equal 2
-      subject.questions.find { |x| x[:write] == 'hallo' }.wont_be_nil
-      subject.questions.find { |x| x[:choose] == 'abc' and x[:answer] == 'xx' and x[:incorrect] == 'yy' }.wont_be_nil
+      _(subject.questions.count).must_equal 2
+      _(subject.questions.find { |x| x[:write] == 'hallo' }).wont_be_nil
+      _(subject.questions.find { |x| x[:choose] == 'abc' and x[:answer] == 'xx' and x[:incorrect] == 'yy' }).wont_be_nil
     end
 
     it "should create closure for write" do
@@ -401,7 +401,7 @@ describe Lesson do
       subject.ask_to write: 'hallo'
       subject.questions.first[:question].call
 
-      subject.write_called.must_equal true 
+      _(subject.write_called).must_equal true 
     end
 
     it "should create closure for choose" do
@@ -410,7 +410,7 @@ describe Lesson do
       subject.ask_to choose: :a, answer: :b, wrong: :c
       subject.questions.first[:question].call
 
-      subject.choose_called.must_equal true
+      _(subject.choose_called).must_equal true
     end
 
     it "should create closure for translate" do
@@ -419,7 +419,7 @@ describe Lesson do
       subject.ask_to translate: :a, answers: ['b', 'c']
       subject.questions.first[:question].call
 
-      subject.translate_called.must_equal true
+      _(subject.translate_called).must_equal true
     end
 
     it "should create closure for select" do
@@ -428,7 +428,7 @@ describe Lesson do
       subject.ask_to select: :t, answers: [:a, :b], wrong: [:c]
       subject.questions.first[:question].call
 
-      subject.select_called.must_equal true
+      _(subject.select_called).must_equal true
     end
 
     it "should be totally okay if you supply answer instead of answers" do
@@ -438,35 +438,35 @@ describe Lesson do
       subject.ask_to translate: :a, answer: answers
       subject.questions.first[:question].call
 
-      subject.translate_called.must_equal true
+      _(subject.translate_called).must_equal true
     end
   end
 
   describe :prepare do
     it "should keep diacritics and friends" do
       characters = "äëïöüß'"
-      subject.prepare(characters).must_equal characters
+      _(subject.prepare(characters)).must_equal characters
     end
   end
 
   def assert_okay! text = "Correct!"
-    prompt.okays.must_include text
+    _(prompt.okays).must_include text
   end
 
   def assert_error! *solutions
     header = "Correct solution"
     header += "s" if solutions.length > 1
 
-    prompt.errors.first.must_equal "#{header}:\n#{solutions.join(", ")}"
+    _(prompt.errors.first).must_equal "#{header}:\n#{solutions.join(", ")}"
   end
 
   def assert_word_exercises_recording aw, wu, c 
     cn = course_name
-    recorder.word_exercises_recorded.any?{ |x| x[:course] == cn and x[:word] == aw and x[:word_used] == wu and x[:correct] == c }.must_equal true
+    _(recorder.word_exercises_recorded.any?{ |x| x[:course] == cn and x[:word] == aw and x[:word_used] == wu and x[:correct] == c }).must_equal true
   end
 
   def assert_question_recorded type, question, answer, correct = true
-    recorder.question_exercises_recorded.count.must_equal 1
-    recorder.question_exercises_recorded.all? { |x| x[:course] == course_name and x[:type] == type and x[:question] == question and x[:answer] == answer and x[:correct] == correct }.must_equal true
+    _(recorder.question_exercises_recorded.count).must_equal 1
+    _(recorder.question_exercises_recorded.all? { |x| x[:course] == course_name and x[:type] == type and x[:question] == question and x[:answer] == answer and x[:correct] == correct }).must_equal true
   end
 end

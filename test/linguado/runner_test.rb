@@ -31,11 +31,11 @@ describe Runner do
 
       subject.ask questions, n
       
-      subject.progress_bar.must_be_instance_of FakeProgressBar
-      subject.progress_bar.format.must_equal '[:bar]'
-      subject.progress_bar.options[:total].must_equal n
-      subject.progress_bar.options[:width].must_equal width
-      subject.progress_bar.options[:complete].must_equal 'G'
+      _(subject.progress_bar).must_be_instance_of FakeProgressBar
+      _(subject.progress_bar.format).must_equal '[:bar]'
+      _(subject.progress_bar.options[:total]).must_equal n
+      _(subject.progress_bar.options[:width]).must_equal width
+      _(subject.progress_bar.options[:complete]).must_equal 'G'
     end
 
     it "should be alright if no questions are supplied" do
@@ -51,9 +51,9 @@ describe Runner do
 
       subject.ask questions, 9
 
-      question_a_called.must_equal 3
-      question_b_called.must_equal 3
-      question_c_called.must_equal 3
+      _(question_a_called).must_equal 3
+      _(question_b_called).must_equal 3
+      _(question_c_called).must_equal 3
     end
 
     it "after each question should clear screen and reposition cursor" do
@@ -62,11 +62,11 @@ describe Runner do
       subject.ask questions, 4
       
       5.times do 
-        kernel.prints.pop.must_equal move_to
-        kernel.prints.pop.must_equal clear_screen
+        _(kernel.prints.pop).must_equal move_to
+        _(kernel.prints.pop).must_equal clear_screen
       end
 
-      kernel.prints.count.must_equal 0
+      _(kernel.prints.count).must_equal 0
     end
 
     it "after each question should update progress bar" do
@@ -74,24 +74,24 @@ describe Runner do
 
       subject.ask questions, 4
 
-      subject.progress_bar.advance_stack.count { |x| x == 1 }.must_equal 6
-      subject.progress_bar.advance_stack.count { |x| x == -1 }.must_equal 2
+      _(subject.progress_bar.advance_stack.count { |x| x == 1 }).must_equal 6
+      _(subject.progress_bar.advance_stack.count { |x| x == -1 }).must_equal 2
     end
 
     it "should keep asking question until the sum of correct and incorrect answers equals passed parameter" do
       questions.push get_question with_failures: 2, after_being_called: 4 
 
       rv = subject.ask(questions, 10)
-      rv.first.must_equal 14
-      rv.drop(1).first.must_equal 12
+      _(rv.first).must_equal 14
+      _(rv.drop(1).first).must_equal 12
     end
 
     it "correct answer count should never drop into negative territory" do
       questions.push get_question with_failures: 2
 
       rv = subject.ask(questions, 10)
-      rv.first.must_equal 12
-      rv.drop(1).first.must_equal 10 
+      _(rv.first).must_equal 12
+      _(rv.drop(1).first).must_equal 10 
     end
 
     it "should show question header before each question" do
@@ -99,7 +99,7 @@ describe Runner do
 
       subject.ask questions, 10
 
-      10.times { |i| kernel.puts_array[i].must_equal "Question #{i + 1}" }
+      10.times { |i| _(kernel.puts_array[i]).must_equal "Question #{i + 1}" }
     end
 
     it "should call gets after every question" do
@@ -107,7 +107,7 @@ describe Runner do
 
       subject.ask questions, 10
 
-      kernel.gets_calls.must_equal 10 
+      _(kernel.gets_calls).must_equal 10 
     end
 
     it "should not be advancing the progress bar into negative territory when delta already 0 or less" do
@@ -115,8 +115,8 @@ describe Runner do
 
       subject.ask questions, 10
 
-      subject.progress_bar.advance_stack.count { |x| x == -1 }.must_equal 0
-      subject.progress_bar.advance_stack.count { |x| x == 1 }.must_equal 10
+      _(subject.progress_bar.advance_stack.count { |x| x == -1 }).must_equal 0
+      _(subject.progress_bar.advance_stack.count { |x| x == 1 }).must_equal 10
     end
   end
 

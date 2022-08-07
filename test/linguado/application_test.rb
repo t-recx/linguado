@@ -30,20 +30,20 @@ describe Application do
       it "should print logo" do
         subject.run
 
-        artii.asciifies.count { |a| a == 'linguado' }.must_equal 1
-        kernel.puts_array.first.must_equal 'linguado'
+        _(artii.asciifies.count { |a| a == 'linguado' }).must_equal 1
+        _(kernel.puts_array.first).must_equal 'linguado'
       end
 
       it "should print version" do
         subject.run
 
-        kernel.puts_array.drop(2).first.must_equal "Version #{Linguado::VERSION}"
+        _(kernel.puts_array.drop(2).first).must_equal "Version #{Linguado::VERSION}"
       end
 
       it "should welcome user" do
         subject.run
 
-        kernel.puts_array.drop(3).first.must_equal "Welcome back, #{Etc.getpwnam(Etc.getlogin).gecos.split(/,/).first}"  
+        _(kernel.puts_array.drop(3).first).must_equal "Welcome back, #{Etc.getpwnam(Etc.getlogin).gecos.split(/,/).first}"  
       end
 
       it "should require all course files in home directory" do
@@ -53,13 +53,13 @@ describe Application do
 
         subject.run
 
-        kernel.requires.must_equal courses
+        _(kernel.requires).must_equal courses
       end
 
       it "should inform there are no courses available if that's the case" do
         subject.run
 
-        kernel.puts_array.drop(4).first.must_equal "No courses found! Please put some in the #{dir.home}/.linguado directory and try again"
+        _(kernel.puts_array.drop(4).first).must_equal "No courses found! Please put some in the #{dir.home}/.linguado directory and try again"
       end
     end
 
@@ -68,9 +68,9 @@ describe Application do
         setup_exit
 
         subject.run
-        subject.courses.count { |course| course.is_a? GermanCourse }.must_equal 1
-        subject.courses.count { |course| course.is_a? ItalianCourse }.must_equal 1
-        subject.courses.count.must_equal 2
+        _(subject.courses.count { |course| course.is_a? GermanCourse }).must_equal 1
+        _(subject.courses.count { |course| course.is_a? ItalianCourse }).must_equal 1
+        _(subject.courses.count).must_equal 2
       end
 
       it "should allow the user to choose which course they want" do
@@ -80,7 +80,7 @@ describe Application do
 
         subject.run
 
-        c.work_called.must_equal true
+        _(c.work_called).must_equal true
       end
 
       it "should loop until user decides to exit" do
@@ -91,7 +91,7 @@ describe Application do
 
         subject.run
 
-        c.times_called.must_equal 2
+        _(c.times_called).must_equal 2
       end
     end
   end

@@ -27,29 +27,29 @@ describe Recorder do
     it "should create course if it doesn't exist" do
       exercise_record_word
 
-      Database::Models::Course.first.name.must_equal course
-      Database::Models::Course.first.created_at.wont_equal nil
-      Database::Models::Course.count.must_equal 1
+      _(Database::Models::Course.first.name).must_equal course
+      _(Database::Models::Course.first.created_at).wont_equal nil
+      _(Database::Models::Course.count).must_equal 1
     end
 
     it "shouldn't create more than one course with the same name" do
       exercise_record_word
       exercise_record_word
 
-      Database::Models::Course.count.must_equal 1
+      _(Database::Models::Course.count).must_equal 1
     end
 
     it "should create word if it doesn't exist" do
       exercise_record_word
 
-      Word.first.name.must_equal actual_word
+      _(Word.first.name).must_equal actual_word
     end
 
     it "shouldn't create more than one word with the same name" do
       exercise_record_word
       exercise_record_word
 
-      Word.count.must_equal 1
+      _(Word.count).must_equal 1
     end
 
     it "should create a record on word_exercise_record_words" do
@@ -58,10 +58,10 @@ describe Recorder do
       exercise_record_word aw: actual_word, c: true, wu: 'gfkjf'
       exercise_record_word cs: 'zyx'
 
-      WordExercise.count.must_equal 4
-      subject.get_word_exercises(course, actual_word).count.must_equal 2
-      subject.get_word_exercises('zyx', actual_word).count.must_equal 1
-      subject.get_word_exercises(course, 'xxx').count.must_equal 1
+      _(WordExercise.count).must_equal 4
+      _(subject.get_word_exercises(course, actual_word).count).must_equal 2
+      _(subject.get_word_exercises('zyx', actual_word).count).must_equal 1
+      _(subject.get_word_exercises(course, 'xxx').count).must_equal 1
     end
   end
 
@@ -69,29 +69,29 @@ describe Recorder do
     it "should create course if it doesn't exist" do
       exercise_record_question
 
-      Database::Models::Course.first.name.must_equal course
-      Database::Models::Course.first.created_at.wont_equal nil
-      Database::Models::Course.count.must_equal 1
+      _(Database::Models::Course.first.name).must_equal course
+      _(Database::Models::Course.first.created_at).wont_equal nil
+      _(Database::Models::Course.count).must_equal 1
     end
 
     it "shouldn't create more than one course with the same name" do
       exercise_record_question
       exercise_record_question
 
-      Database::Models::Course.count.must_equal 1
+      _(Database::Models::Course.count).must_equal 1
     end
 
     it "should create question if it doesn't exist" do
       exercise_record_question
 
-      Question.first.question.must_equal question
+      _(Question.first.question).must_equal question
     end
 
     it "shouldn't create more than one question with the same name" do
       exercise_record_question
       exercise_record_question
 
-      Question.count.must_equal 1
+      _(Question.count).must_equal 1
     end
 
     it "should create question exercise records" do
@@ -100,10 +100,10 @@ describe Recorder do
       exercise_record_question t: 'translate', q: 'one'
       exercise_record_question t: 'translate', q: 'one'
 
-      QuestionExercise.count.must_equal 4
-      subject.get_question_exercises('abc', type, question).count.must_equal 1
-      subject.get_question_exercises(course, type, question).count.must_equal 1
-      subject.get_question_exercises(course, 'translate', 'one').count.must_equal 2
+      _(QuestionExercise.count).must_equal 4
+      _(subject.get_question_exercises('abc', type, question).count).must_equal 1
+      _(subject.get_question_exercises(course, type, question).count).must_equal 1
+      _(subject.get_question_exercises(course, 'translate', 'one').count).must_equal 2
     end
   end
 
@@ -111,16 +111,16 @@ describe Recorder do
     it "should create lesson if it doesn't exist" do
       exercise_record_lesson
 
-      Database::Models::Lesson.first.name.must_equal lesson
-      Database::Models::Lesson.first.created_at.wont_equal nil
-      Database::Models::Lesson.count.must_equal 1
+      _(Database::Models::Lesson.first.name).must_equal lesson
+      _(Database::Models::Lesson.first.created_at).wont_equal nil
+      _(Database::Models::Lesson.count).must_equal 1
     end
 
     it "shouldn't create more than one lesson with the same name" do
       exercise_record_lesson
       exercise_record_lesson
 
-      Database::Models::Lesson.count.must_equal 1
+      _(Database::Models::Lesson.count).must_equal 1
     end
 
     it "should create lesson exercises" do
@@ -128,37 +128,37 @@ describe Recorder do
       exercise_record_lesson
       exercise_record_lesson
 
-      subject.get_lesson_exercises(course, lesson).count.must_equal 3
+      _(subject.get_lesson_exercises(course, lesson).count).must_equal 3
     end
   end
 
   describe :already_passed_lesson do
     it "should return false if no record of lesson already on database" do
-      subject.already_passed_lesson(course, lesson).must_equal false
+      _(subject.already_passed_lesson(course, lesson)).must_equal false
     end
 
     it "should return true if already has record of lesson on database" do
       subject.record_lesson_exercise course, lesson, 10, 10
 
-      subject.already_passed_lesson(course, lesson).must_equal true
+      _(subject.already_passed_lesson(course, lesson)).must_equal true
     end
   end
 
   describe :get_word_exercise_record_words do
     it "should be alright when no records present" do
-      subject.get_word_exercises('abc', 'def').count.must_equal 0
+      _(subject.get_word_exercises('abc', 'def').count).must_equal 0
     end
   end
 
   describe :get_question_exercises do
     it "should be alright when no records present" do
-      subject.get_question_exercises('a', 'b', 'c').count.must_equal 0
+      _(subject.get_question_exercises('a', 'b', 'c').count).must_equal 0
     end
   end
 
   describe :get_lesson_exercises do
     it "should be alright when no records present" do
-      subject.get_lesson_exercises('a', 'b').count.must_equal 0
+      _(subject.get_lesson_exercises('a', 'b').count).must_equal 0
     end
   end
 

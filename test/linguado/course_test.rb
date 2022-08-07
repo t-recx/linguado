@@ -27,7 +27,7 @@ describe Course do
     let(:course_name) { nil }
 
     it "when no name supplied should use class name" do
-      subject.name.must_equal 'Course'
+      _(subject.name).must_equal 'Course'
     end
   end
 
@@ -35,7 +35,7 @@ describe Course do
     it "should create record in topics" do
       subject.topic 'Introduction'
 
-      subject.topics.count.must_equal 1
+      _(subject.topics.count).must_equal 1
       subject.topics.all? { |t| t[:name] == 'Introduction' }
     end
   end
@@ -129,7 +129,7 @@ describe Course do
 
             subject.work
 
-            runner.asked.first.must_equal questions_two
+            _(runner.asked.first).must_equal questions_two
           end
 
           it "should record lesson exercise" do
@@ -139,7 +139,7 @@ describe Course do
 
             subject.work
 
-            recorder.lesson_exercises_recorded.count { |le| le[:course] == course_name and le[:lesson] == lesson_name and le[:questions] == questions_asked and le[:correct_answers] == correct_answers }.must_equal 1
+            _(recorder.lesson_exercises_recorded.count { |le| le[:course] == course_name and le[:lesson] == lesson_name and le[:questions] == questions_asked and le[:correct_answers] == correct_answers }).must_equal 1
           end
         end
       end
@@ -151,7 +151,7 @@ describe Course do
   end
 
   def assert_selection choices, drops = 0
-    prompt.selections.drop(drops).first.must_equal({ title: title, choices: choices + ['Go Back'], options: nil})
+    _(prompt.selections.drop(drops).first).must_equal({ title: title, choices: choices + ['Go Back'], options: nil})
   end
 
   def get_fake_lesson q = [], name = nil

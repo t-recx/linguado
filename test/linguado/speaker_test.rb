@@ -15,7 +15,7 @@ describe Speaker do
     it "should call open3 with correct parameters" do
       subject.speak "Hallo, wie geht's?", "de-DE"
 
-      open3.calls[0].must_equal ["pico2wave", "--wave=#{filename}", "-l=de-DE", "Hallo, wie geht's?"]
+      _(open3.calls[0]).must_equal ["pico2wave", "--wave=#{filename}", "-l=de-DE", "Hallo, wie geht's?"]
     end
 
     it "should call play if first call successful" do
@@ -23,7 +23,7 @@ describe Speaker do
 
       subject.speak "hi"
 
-      open3.calls.last.must_equal ["play", filename]
+      _(open3.calls.last).must_equal ["play", filename]
     end
 
     it "should not call play if first call unsuccessful" do
@@ -31,13 +31,13 @@ describe Speaker do
 
       subject.speak "hi"
 
-      open3.calls.count.must_equal 1
+      _(open3.calls.count).must_equal 1
     end
 
     it "should check if filename exists" do
       subject.speak "hi"
 
-      file.exists.must_equal [filename]
+      _(file.exists).must_equal [filename]
     end
 
     it "should delete file if exists" do
@@ -45,7 +45,7 @@ describe Speaker do
 
       subject.speak "hi"
 
-      file.deletes.must_equal [filename]
+      _(file.deletes).must_equal [filename]
     end
 
     it "should do nothing if execution of play not over" do 
@@ -54,7 +54,7 @@ describe Speaker do
 
       subject.speak "hi"
 
-      file.deletes.must_be_empty
+      _(file.deletes).must_be_empty
     end
 
     it "should do nothing if file does not exist" do
@@ -62,7 +62,7 @@ describe Speaker do
 
       subject.speak "hi"
 
-      file.deletes.must_be_empty
+      _(file.deletes).must_be_empty
     end
   end
 end
