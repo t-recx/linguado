@@ -19,7 +19,7 @@ describe Recorder do
 
   around do |&block|
     Sequel::Model.db.transaction(:rollback=>:always, :auto_savepoint=>true) do
-      super &block
+      super(&block)
     end
   end
 

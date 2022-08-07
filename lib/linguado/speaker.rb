@@ -18,7 +18,7 @@ module Linguado
     end
 
     def execute *cmd
-      i, o, e, wt = @open3.popen3 *cmd
+      _, _, _, wt = @open3.popen3(*cmd)
 
       wt.value.success?
     end

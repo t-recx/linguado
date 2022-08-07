@@ -2,7 +2,6 @@ class FakeProgressBar
   attr_accessor :current
   attr_accessor :format
   attr_accessor :options
-  attr_accessor :current
   attr_accessor :started
   attr_accessor :advance_stack
 

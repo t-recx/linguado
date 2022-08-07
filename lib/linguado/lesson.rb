@@ -92,7 +92,7 @@ module Linguado
     end
 
     def prepare s
-      s.downcase.gsub(/[^\p{ALPHA}\w\s\"'"]/, ' ').split.join(' ')
+      s.downcase.gsub(/[^\p{ALPHA}'"]/, ' ').split.join(' ')
     end
 
     def correct? answer, *possibilities
