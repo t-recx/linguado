@@ -93,16 +93,13 @@ end
 
 # Installation
 
+Install the non-ruby dependencies libsqlite3-dev, libttspico-utils and sox on your system. In debian-based systems this can be done with:
+
+	$ sudo apt-get install libsqlite3-dev libttspico-utils sox
+	
+Install the ruby dependencies:
+	
 	$ bundle install
-
-Non-Ruby Dependencies that need to be installed (for the text-to-speech to work):
-
-* libttspico-utils
-* sox
-
-For example, on debian systems you can install them like this:
-
-	$ sudo apt-get install libttspico-utils sox
 
 # Running
 
